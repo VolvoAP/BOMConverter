@@ -1,0 +1,15 @@
+name: Keep App Alive
+
+on:
+  workflow_dispatch: # Handmatige trigger
+  schedule:
+    - cron: "*/15 * * * *" # Automatische trigger elke 15 minuten
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send ping to Render App
+        run: |
+          curl -s -o /dev/null https://bomconverter.onrender.com/
