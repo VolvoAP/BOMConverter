@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+
+{% block content %}
+<div class="home-content">
+    <header>
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width: 100px;">
+        <h1>Welkom</h1>
+    </header>
+    <p>Kies een applicatie om te starten:</p>
+    <div class="app-grid">
+        <div class="app-card">
+            <h3>BOM Converter</h3>
+            <p>Converteer PDF-bestanden naar Excel-bestanden met de juiste BOM-structuur.</p>
+            <a href="/bom-converter" class="app-button">Start BOM Converter</a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

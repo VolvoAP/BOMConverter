@@ -3,20 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Flask App{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <header>
-        <!-- Logo in de header -->
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width: 200px;">
-        <h1>BOM CONVERTOR</h1>
-    </header>
     <main>
         {% block content %}{% endblock %}
     </main>
     <footer>
-        <p>Made by Manuel</p>
+        <p class="footer-text">Made by Manuel.</p>
     </footer>
 </body>
 </html>

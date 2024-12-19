@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}BOM CONVERTER{% endblock %}
+
+{% block content %}
+
+    <header>
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width: 100px;">
+        <h1>BOM CONVERTER</h1>
+
+    </header>
+<p>Upload je PDF-bestanden en converteer ze naar een Excel-bestand met de juiste BOM structuur.</p>
+
+<! Home knop -- >
+
+
+
+
+<form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+    <div class="file-input-wrapper">
+        <input id="fileInput" class="file-input" type="file" name="files[]" multiple>
+        <span class="custom-file-button">Bladeren...</span>
+    </div>
+    <div id="selectedFiles" style="margin-top: 10px;">
+        <p>Geen bestanden geselecteerd.</p>
+    </div>
+    <br>
+    <button class="upload-button" type="submit">Uploaden</button>
+</form>
+
+<div id="loading" style="display: none;">
+    <img src="{{ url_for('static', filename='loading.gif') }}" alt="Bezig met laden...">
+    <p>Bezig met converteren...</p>
+</div>
+<a href="{{ url_for('home') }}" class="button">Home</a>
+
+
+<script>
+    const fileInput = document.getElementById("fileInput");
+    const selectedFilesDiv = document.getElementById("selectedFiles");
+    const form = document.getElementById("uploadForm");
+    const loadingDiv = document.getElementById("loading");
+
+    // Toon geselecteerde bestanden
+    fileInput.addEventListener("change", () => {
+        const files = fileInput.files;
+        if (files.length > 0) {
+            let fileList = "<ul>";
+            for (let i = 0; i < files.length; i++) {
+                fileList += `<li>${files[i].name}</li>`;
+            }
+            fileList += "</ul>";
+            selectedFilesDiv.innerHTML = fileList;
+        } else {
+            selectedFilesDiv.innerHTML = "<p>Geen bestanden geselecteerd.</p>";
+        }
+    });
+
+    // Toon laadanimatie tijdens upload
+    form.addEventListener("submit", () => {
+        form.style.display = "none"; // Verberg het formulier
+        loadingDiv.style.display = "block"; // Toon de laad-GIF
+    });
+</script>
+{% endblock %}

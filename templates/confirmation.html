@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Bom Converter{% endblock %}
+
+{% block content %}
+
+
+<!-- Laad-GIF -->
+<div id="loading" style="display: block;">
+    <img src="{{ url_for('static', filename='loading.gif') }}" alt="Bezig met laden...">
+    <p>Bezig met converteren...</p>
+</div>
+
+<!-- Download- en Home-knoppen (verborgen bij het begin) -->
+<div id="actionButtons" style="display: none; margin-top: 20px;">
+    <a href="{{ url_for('download_file') }}" class="button">Download Bestand</a>
+    <a href="{{ url_for('index') }}" class="button" style="margin-left: 10px;">Home</a>
+</div>
+<div id="loading">
+    <img src="{{ url_for('static', filename='loading.gif') }}" alt="Bezig met converteren...">
+    <p>Bezig met converteren...</p>
+</div>
+<div id="success-message" style="display: none;">
+    <p>De conversie is voltooid. Klik hieronder om het bestand te downloaden.</p>
+    <a href="{{ url_for('download_file') }}" class="button">Download Bestand</a>
+    <a href="{{ url_for('index') }}" class="button">Home</a>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Simuleer een vertraging van bijvoorbeeld 3 seconden
+        setTimeout(function () {
+            // Verberg de laad-GIF
+            document.getElementById("loading").style.display = "none";
+            // Toon de succesboodschap
+            document.getElementById("success-message").style.display = "block";
+        }, 1500); // 3000 milliseconden = 3 seconden
+    });
+</script>
+
+{% endblock %}
