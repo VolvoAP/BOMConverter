@@ -16,6 +16,9 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # Zorg ervoor dat de uploads-map bestaat
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+# Globale buffer voor het gegenereerde Excel-bestand
+output_buffer = None
+
 
 def allowed_file(filename):
     """Controleer of het bestandstype toegestaan is."""
@@ -23,14 +26,25 @@ def allowed_file(filename):
 
 
 @app.route("/")
+def main_page():
+    return redirect(url_for("home"))
+
+
+@app.route("/home")
+def home():
+    return render_template("home.html")
+
+
+@app.route("/bom-converter")
 def index():
     """Startpagina."""
-    return render_template("index.html")
+    return render_template("bom-converter.html")
 
 
 @app.route("/upload", methods=["POST"])
 def upload_files():
-    """Verwerkt uploads en biedt het Excel-bestand aan als download."""
+    """Verwerkt uploads en biedt een downloadlink aan."""
+    global output_buffer  # Gebruik de globale buffer om het bestand op te slaan
     if "files[]" not in request.files:
         return "Geen bestanden geüpload", 400
 
@@ -39,11 +53,13 @@ def upload_files():
 
     for file in files:
         if file and allowed_file(file.filename):
-            filename = file.filename
-            pdf_paths.append(file)  # Direct bestand doorgeven voor verwerking
+            pdf_paths.append(file)
 
     if pdf_paths:
-        return process_multiple_pdfs(pdf_paths)
+        # Verwerk PDF's naar een Excel-bestand
+        output_buffer = process_multiple_pdfs(pdf_paths)
+        # Toon de bevestigingspagina
+        return render_template("confirmation.html")
 
     return redirect(url_for("index"))
 
@@ -151,10 +167,18 @@ def process_multiple_pdfs(pdf_files):
     output = io.BytesIO()
     workbook.save(output)
     output.seek(0)
+    return output
 
-    # Retourneer het bestand als download
+
+@app.route("/download")
+def download_file():
+    """Stelt het geconverteerde bestand beschikbaar voor download."""
+    global output_buffer
+    if output_buffer is None:
+        return "Geen bestand beschikbaar om te downloaden", 400
+
     return send_file(
-        output,
+        output_buffer,
         as_attachment=True,
         download_name="converted-bom.xlsx",
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
