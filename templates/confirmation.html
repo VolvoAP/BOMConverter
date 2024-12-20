@@ -4,6 +4,10 @@
 
 {% block content %}
 
+<header id="success-header" style="display: none;">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width: 100px;">
+    <h1>GELUKT!</h1>
+</header>
 
 <!-- Laad-GIF -->
 <div id="loading" style="display: block;">
@@ -32,6 +36,8 @@
         // Simuleer een vertraging van bijvoorbeeld 3 seconden
         setTimeout(function () {
             // Verberg de laad-GIF
+            document.getElementById("success-header").style.display = "block";
+            //header tonen
             document.getElementById("loading").style.display = "none";
             // Toon de succesboodschap
             document.getElementById("success-message").style.display = "block";
