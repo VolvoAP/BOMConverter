@@ -135,12 +135,21 @@ footer {
     font-size: 14px;
 }
 
-.footer-text {
+.footer-text, .contact-text {
+    
     color: #bbb;
-    text-align: left;
     margin-left: 2cm;
-}
+    text-align: center;
 
+}
+.contact-text a {
+    color: #00b4d8;
+    text-decoration: none;
+    text-align: center;
+}
+.contact-text a:hover {
+    text-decoration: underline;
+}
 /* Laad animatie */
 #loading {
     position: fixed;
