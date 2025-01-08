@@ -81,6 +81,10 @@ def process_single_pdf(pdf_file):
     # Begin vanaf rij 5
     df = df.iloc[5:].reset_index(drop=True)
 
+    # Filter rijen
+    
+    df= df[~df.apply(lambda  row:  row.astype(str).str.contains("COUNTER ELECTRODE").any(),axis=1)]
+
     # Maak een nieuw DataFrame met de juiste structuur
     new_df = pd.DataFrame()
     new_df["H"] = df[1]  # B → H
