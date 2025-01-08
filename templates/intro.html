@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Pagina wordt gestart...</title>
+</head>
+<body>
+    <!-- Introductie Inhoud -->
+    <div id="intro" class="intro-container">
+        <h1 class="fade-in-slide">Welkom!</h1>
+        <p class="fade-in-delayed-1">Even geduld<span id="dots">...</span></p>
+        <p class="fade-in-delayed">De applicaties worden opgestart.
+        <div class="loader"></div>
+    </div>
+
+    <!-- Automatische redirect naar home -->
+    <script>
+        // Dynamische puntjes animatie
+        let dots = 0;
+        const dotsElement = document.getElementById('dots');
+
+        setInterval(() => {
+            dots = (dots + 1) % 4; // Loop tussen 0 en 3
+            dotsElement.textContent = '.'.repeat(dots);
+        }, 500); // Verander de snelheid hier (500 ms)
+
+        // Redirect naar de homepagina na 5 seconden
+        setTimeout(() => {
+            window.location.href = "/home";
+        }, 5500);
+    </script>
+</body>
+</html>
