@@ -40,6 +40,10 @@ def index():
     """Startpagina."""
     return render_template("bom-converter.html")
 
+@app.route("/autobom")
+def autobom():
+    return render_template("autobom.html")
+
 
 @app.route("/upload", methods=["POST"])
 def upload_files():
