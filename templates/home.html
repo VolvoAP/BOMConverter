@@ -2,7 +2,6 @@
 
 {% block title %}Home{% endblock %}
 
-
 {% block content %}
 <div class="home-content">
     <header>
@@ -11,12 +10,19 @@
     </header>
     <p>Kies een applicatie om te starten:</p>
     <div class="app-grid">
+        <!-- Eerste knop: BOM Converter -->
         <div class="app-card">
             <h3>BOM Converter</h3>
             <p>Converteer PDF-bestanden naar Excel-bestanden met de juiste BOM-structuur.</p>
             <a href="/bom-converter" class="app-button">Start BOM Converter</a>
         </div>
 
+        <!-- Tweede knop: Automation to BOM -->
+        <div class="app-card">
+            <h3>Coming Soon</h3>
+            <p>Automatiseren van kopiëren naar main BOM file.</p>
+            <a href="/autobom" class="app-button">Start Automation to BOM</a>
+        </div>
     </div>
 </div>
 {% endblock %}
