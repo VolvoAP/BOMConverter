@@ -26,8 +26,8 @@ def allowed_file(filename):
 
 
 @app.route("/")
-def main_page():
-    return redirect(url_for("home"))
+def intro():
+    return render_template("intro.html")
 
 
 @app.route("/home")
