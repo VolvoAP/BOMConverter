@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
     <main>
         {% block content %}{% endblock %}
     </main>
-    <footer>
-        <p class="footer-text">Made by Manuel.</p>
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-text">Made by Manuel.</p>
+            <p class="contact-text">Contact: <a href="mailto:Manuel.Yaramis@volvocars.com">manuel.yaramis@volvocars.com</a></p>
+        </div>
     </footer>
 </body>
 </html>
