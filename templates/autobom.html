@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Automation to BOM{% endblock %}
+
+{% block content %}
+<header>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width: 100px;">
+    <h1>Automation to BOM</h1>
+</header>
+
+<div class="construction-message">
+    <h2>Pagina Onder Constructie 🚧</h2>
+    <p>We zijn hard aan het werk om deze functie te voltooien. Kom binnenkort terug!</p>
+</div>
+
+<a href="{{ url_for('home') }}" class="button">Home</a>
+
+{% endblock %}
