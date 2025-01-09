@@ -352,8 +352,40 @@ footer {
     }
 }
 
+/* ✅ Media Query voor Mobiele Apparaten */
+@media (max-width: 768px) {
+    .slideshow {
+        width: 250px;
+        height: 150px;
+    }
+
+    #welcome-text {
+        font-size: 2rem;
+    }
+
+    #waiting-text,
+    #starting-text {
+        font-size: 1rem;
+    }
+
+    .loader {
+        width: 30px;
+        height: 30px;
+        margin-top: 15px;
+    }
+
+    .text-overlay {
+        top: 45%;
+    }
+}
+
 /* ✅ Media Query voor Hele Kleine Schermen */
 @media (max-width: 480px) {
+    .slideshow {
+        width: 200px;
+        height: 120px;
+    }
+
     #welcome-text {
         font-size: 1.8rem;
     }
@@ -371,7 +403,5 @@ footer {
 
     .text-overlay {
         top: 50%;
-        padding: 5px;
     }
 }
-
