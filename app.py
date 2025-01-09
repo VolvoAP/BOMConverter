@@ -6,6 +6,8 @@ from openpyxl.styles import PatternFill
 import pdfplumber
 import io
 from datetime import timedelta
+from concurrent.futures import ThreadPoolExecutor
+import time
 
 # Flask-configuratie
 app = Flask(__name__)
@@ -14,7 +16,7 @@ ALLOWED_EXTENSIONS = {"pdf"}
 app.secret_key = "volvomanuel"
 
 # Stel de sessie in om permanent te zijn
-app.permanent_session_lifetime = timedelta(hours=1)  # Sessie blijft 60 min
+app.permanent_session_lifetime = timedelta(hours=1)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
@@ -40,7 +42,7 @@ def require_intro():
 # Route voor de intro-pagina
 @app.route("/")
 def intro():
-    session["intro_viewed"] = True  # Geen session.permanent
+    session["intro_viewed"] = True
     return render_template("intro.html")
 
 
@@ -65,20 +67,21 @@ def autobom():
 @app.route("/upload", methods=["POST"])
 def upload_files():
     """Verwerkt uploads en biedt een downloadlink aan."""
-    global output_buffer  # Gebruik de globale buffer om het bestand op te slaan
+    global output_buffer
     if "files[]" not in request.files:
         return "Geen bestanden geüpload", 400
 
     files = request.files.getlist("files[]")
-    pdf_paths = []
-
-    for file in files:
-        if file and allowed_file(file.filename):
-            pdf_paths.append(file)
+    pdf_paths = [file for file in files if file and allowed_file(file.filename)]
 
     if pdf_paths:
-        # Verwerk PDF's naar een Excel-bestand
-        output_buffer = process_multiple_pdfs(pdf_paths)
+        # Gebruik ThreadPoolExecutor voor parallelle verwerking
+        with ThreadPoolExecutor() as executor:
+            processed_dataframes = list(executor.map(process_single_pdf, pdf_paths))
+
+        # Combineer alle DataFrames in één Excel-bestand
+        output_buffer = combine_dataframes_to_excel(processed_dataframes, pdf_paths)
+
         # Toon de bevestigingspagina
         return render_template("confirmation.html")
 
@@ -87,30 +90,41 @@ def upload_files():
 
 def process_single_pdf(pdf_file):
     """Verwerkt één PDF-bestand en zet data om naar een DataFrame."""
-    with pdfplumber.open(pdf_file) as pdf:
-        all_data = []
-        for page in pdf.pages:
-            table = page.extract_table()
-            if table:
-                all_data.extend(table)
+    start_time = time.time()
+    try:
+        with pdfplumber.open(pdf_file) as pdf:
+            all_data = []
+            for page in pdf.pages:
+                table = page.extract_table()
+                if table:
+                    all_data.extend(table)
 
-    # Zet data om naar DataFrame
-    df = pd.DataFrame(all_data)
-    if df.empty or len(df) <= 5:
+        df = pd.DataFrame(all_data)
+        if df.empty or len(df) <= 5:
+            return pd.DataFrame()
+
+        # Begin vanaf rij 5
+        df = df.iloc[5:].reset_index(drop=True)
+
+        # Rijen met de onderstaande woord niet overkopiëren
+        df = df[
+            ~df.apply(
+                lambda row: row.astype(str).str.contains("COUNTER ELECTRODE").any(),
+                axis=1,
+            )
+        ]
+
+        print(
+            f"{pdf_file.filename} verwerkt in {time.time() - start_time:.2f} seconden"
+        )
+        return format_dataframe(df)
+    except Exception as e:
+        print(f"Fout bij verwerking van {pdf_file.filename}: {e}")
         return pd.DataFrame()
 
-    # Begin vanaf rij 5
-    df = df.iloc[5:].reset_index(drop=True)
 
-    # Rijen met de onderstaande woord niet overkopiëren
-
-    df = df[
-        ~df.apply(
-            lambda row: row.astype(str).str.contains("COUNTER ELECTRODE").any(), axis=1
-        )
-    ]
-
-    # Maak een nieuw DataFrame met de juiste structuur
+def format_dataframe(df):
+    """Formateert de DataFrame naar de gewenste structuur."""
     new_df = pd.DataFrame()
     new_df["H"] = df[1]  # B → H
     new_df["I"] = df[6]  # G → I
@@ -130,18 +144,17 @@ def process_single_pdf(pdf_file):
         combined_value = f"{g_value} {r_value}"
         new_df.at[0, "P"] = combined_value
         new_df.at[0, "Z"] = f"COMPLETE {combined_value}"
-        new_df.at[0, "I"] = ""  # Kolom I blijft leeg
-        new_df.at[0, "S"] = ""  # Kolom S blijft leeg
+        new_df.at[0, "I"] = ""
+        new_df.at[0, "S"] = ""
 
     return new_df
 
 
-def process_multiple_pdfs(pdf_files):
-    """Verwerkt meerdere PDF-bestanden en combineert ze in één Excel-bestand."""
+def combine_dataframes_to_excel(dataframes, pdf_paths):
+    """Combineert meerdere DataFrames in één Excel-bestand."""
     workbook = Workbook()
     workbook.remove(workbook.active)
 
-    # Kleurinstellingen
     yellow_fill = PatternFill(
         start_color="FFFFCC", end_color="FFFFCC", fill_type="solid"
     )
@@ -150,31 +163,28 @@ def process_multiple_pdfs(pdf_files):
         start_color="FFFF00", end_color="FFFF00", fill_type="solid"
     )
 
-    # Verwerk elk bestand
-    for pdf_file in pdf_files:
-        processed_df = process_single_pdf(pdf_file)
-        if not processed_df.empty:
-            # Stel de naam van de sheet in
+    for df, pdf_file in zip(dataframes, pdf_paths):
+        if not df.empty:
+            # Stel de naam van de sheet in op basis van de bestandsnaam
             sheet_name = os.path.splitext(os.path.basename(pdf_file.filename))[0][:31]
+            sheet_name = "".join(c for c in sheet_name if c.isalnum() or c.isspace())
             sheet_name = sheet_name.replace("volvo", "").strip()  # Verwijder volvo
-            sheet_name = sheet_name[:31]  # 31 tekens max
 
             ws = workbook.create_sheet(title=sheet_name)
 
             # Kolom A startwaarden
             value_in_a = 10
 
-            # Schrijf gegevens naar de sheet
-            for r_idx, row in enumerate(processed_df.itertuples(index=False), start=1):
-                # Kolom A: Schrijf waarde en pas kleur toe
+            # Schrijf gegevens naar de juiste cellen
+            for r_idx, row in enumerate(df.itertuples(index=False), start=1):
                 ws.cell(row=r_idx, column=1, value=value_in_a)
                 if r_idx == 1:
-                    ws.cell(row=r_idx, column=1).fill = yellow_fill  # Eerste rij geel
+                    ws.cell(row=r_idx, column=1).fill = yellow_fill
                 else:
-                    ws.cell(row=r_idx, column=1).fill = blue_fill  # Andere rijen blauw
+                    ws.cell(row=r_idx, column=1).fill = blue_fill
 
                 if r_idx > 1:
-                    value_in_a += 10  # Verhoog met 10 na de eerste rij
+                    value_in_a += 10
 
                 # Kolommen H tot Z
                 ws.cell(row=r_idx, column=8, value=row[0])  # H
@@ -188,11 +198,9 @@ def process_multiple_pdfs(pdf_files):
                 ws.cell(row=r_idx, column=25, value=row[8])  # Y
                 ws.cell(row=r_idx, column=19, value=row[9])  # S
 
-                # Kleur kolommen Y en Z geel
-                ws.cell(row=r_idx, column=25).fill = highlight_fill  # Y
-                ws.cell(row=r_idx, column=26).fill = highlight_fill  # Z
+                ws.cell(row=r_idx, column=25).fill = highlight_fill
+                ws.cell(row=r_idx, column=26).fill = highlight_fill
 
-    # Sla het bestand op in een BytesIO-buffer
     output = io.BytesIO()
     workbook.save(output)
     output.seek(0)
