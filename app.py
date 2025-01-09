@@ -11,10 +11,10 @@ from datetime import timedelta
 app = Flask(__name__)
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"pdf"}
-app.secret_key = "volvo"
+app.secret_key = "volvomanuel"
 
 # Stel de sessie in om permanent te zijn
-app.permanent_session_lifetime = timedelta(days=1)  # Sessie blijft 7 dagen actief
+app.permanent_session_lifetime = timedelta(minutes=1)  # Sessie blijft 1 min
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
@@ -30,18 +30,25 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route("/")
+@app.before_request
+def require_intro():
+    # Blokkeer alle routes behalve de intro als de sessie niet is ingesteld
+    if 'intro_viewed' not in session and request.endpoint not in ['intro', 'static']:
+        return redirect(url_for('intro'))
+
+
+# Route voor de intro-pagina
+@app.route('/')
 def intro():
     session.permanent = True  # Sessie permanent maken
-    session["intro_viewed"] = True
-    return render_template("intro.html")
+    session['intro_viewed'] = True
+    return render_template('intro.html')
 
 
-@app.route("/home")
+# Route voor de homepagina
+@app.route('/home')
 def home():
-    if not session.get("intro_viewed"):
-        return redirect(url_for("intro"))
-    return render_template("home.html")
+    return render_template('home.html')
 
 
 @app.route("/bom-converter")
