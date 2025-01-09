@@ -1,15 +1,20 @@
-from flask import Flask, render_template, request, send_file, redirect, url_for
+from flask import Flask, render_template, request, send_file, redirect, url_for, session
 import os
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 import pdfplumber
 import io
+from datetime import timedelta
 
 # Flask-configuratie
 app = Flask(__name__)
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"pdf"}
+app.secret_key = "volvo"
+
+# Stel de sessie in om permanent te zijn
+app.permanent_session_lifetime = timedelta(days=1)  # Sessie blijft 7 dagen actief
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
@@ -27,11 +32,15 @@ def allowed_file(filename):
 
 @app.route("/")
 def intro():
+    session.permanent = True  # Sessie permanent maken
+    session["intro_viewed"] = True
     return render_template("intro.html")
 
 
 @app.route("/home")
 def home():
+    if not session.get("intro_viewed"):
+        return redirect(url_for("intro"))
     return render_template("home.html")
 
 
@@ -40,8 +49,10 @@ def index():
     """Startpagina."""
     return render_template("bom-converter.html")
 
+
 @app.route("/autobom")
 def autobom():
+    """Startpagina."""
     return render_template("autobom.html")
 
 
@@ -85,9 +96,13 @@ def process_single_pdf(pdf_file):
     # Begin vanaf rij 5
     df = df.iloc[5:].reset_index(drop=True)
 
-    # Filter rijen
-    
-    df= df[~df.apply(lambda  row:  row.astype(str).str.contains("COUNTER ELECTRODE").any(),axis=1)]
+    # Rijen met de onderstaande woord niet overkopiëren
+
+    df = df[
+        ~df.apply(
+            lambda row: row.astype(str).str.contains("COUNTER ELECTRODE").any(), axis=1
+        )
+    ]
 
     # Maak een nieuw DataFrame met de juiste structuur
     new_df = pd.DataFrame()
@@ -108,7 +123,7 @@ def process_single_pdf(pdf_file):
         r_value = new_df.at[0, "R"]
         combined_value = f"{g_value} {r_value}"
         new_df.at[0, "P"] = combined_value
-        new_df.at[0, "Z"] = combined_value
+        new_df.at[0, "Z"] = f"COMPLETE {combined_value}"
         new_df.at[0, "I"] = ""  # Kolom I blijft leeg
         new_df.at[0, "S"] = ""  # Kolom S blijft leeg
 
