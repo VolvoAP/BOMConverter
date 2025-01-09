@@ -3,7 +3,7 @@ name: Keep App Alive
 on:
   workflow_dispatch:  # Handmatige trigger
   schedule:
-    - cron: "*/11 * * * *"  # Automatische trigger elke 11 minuten
+    - cron: "0 * * * *"  # Automatische trigger elke 60 minuten
 
 jobs:
   keep-alive:
