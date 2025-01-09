@@ -13,3 +13,4 @@ jobs:
       - name: Send ping to Render App
         run: |
           curl -s -o /dev/null https://bomconverter.onrender.com/home
+          curl -s -o /dev/null https://volvo-tools.up.railway.app
