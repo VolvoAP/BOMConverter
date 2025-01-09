@@ -153,6 +153,7 @@ footer {
     color: white;
     margin-top: auto;
     font-size: 14px;
+    position: relative;
 }
 
 .footer-text, .contact-text {
@@ -197,17 +198,21 @@ footer {
 
 /* Algemene knoppen styling */
 .button {
+    display: inline-block;
+    margin: 20px 0;
     padding: 10px 20px;
     background-color: #4997cf;
-    color: white;
+    color: #fff;
     text-decoration: none;
     border-radius: 5px;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
+    text-align: center;
 }
 
 .button:hover {
     background-color: #2c5c7e;
+}
+a.button + footer {
+    margin-top: 20px;
 }
 
 /* Homepagina Specifieke Styling */
