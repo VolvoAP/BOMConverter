@@ -320,6 +320,7 @@ footer {
     animation-delay: 1.8s; /* Verschijnt pas na 3 seconden */
 }
 
+
 @keyframes spin {
     from {
         transform: rotate(0deg);
@@ -350,3 +351,27 @@ footer {
         opacity: 1;
     }
 }
+
+/* ✅ Media Query voor Hele Kleine Schermen */
+@media (max-width: 480px) {
+    #welcome-text {
+        font-size: 1.8rem;
+    }
+
+    #waiting-text,
+    #starting-text {
+        font-size: 0.9rem;
+    }
+
+    .loader {
+        width: 25px;
+        height: 25px;
+        margin-top: 10px;
+    }
+
+    .text-overlay {
+        top: 50%;
+        padding: 5px;
+    }
+}
+
