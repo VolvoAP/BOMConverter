@@ -5,16 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Pagina wordt gestart...</title>
+    <!-- Check of de intro al bekeken is in deze sessie -->
+    <script>
+        if (sessionStorage.getItem('introViewed')) {
+            window.location.href = "/home";
+        }
+    </script>
 </head>
 <body>
     <!-- Introductie Inhoud -->
     <div id="intro" class="intro-container">
         <!-- Slideshow Container -->
         <div class="slideshow">
-            <!-- Volvo GIF als startafbeelding -->
             <img src="{{ url_for('static', filename='volvo.gif') }}" alt="Volvo Intro" class="slide active">
-
-            <!-- Andere afbeeldingen -->
             <img src="{{ url_for('static', filename='image1.jpg') }}" alt="Volvo Image 1" class="slide">
             <img src="{{ url_for('static', filename='image2.jpg') }}" alt="Volvo Image 2" class="slide">
             <img src="{{ url_for('static', filename='image3.jpg') }}" alt="Volvo Image 3" class="slide">
@@ -35,14 +38,9 @@
         const dotsElement = document.getElementById('dots');
 
         setInterval(() => {
-            dots = (dots + 1) % 4; // Loop tussen 0 en 3
+            dots = (dots + 1) % 4;
             dotsElement.textContent = '.'.repeat(dots);
-        }, 400); // Verander de snelheid hier (400 ms)
-
-        // Redirect naar de homepagina na 8,5 seconden
-        setTimeout(() => {
-            window.location.href = "/home";
-        }, 8500);
+        }, 400);
 
         // Slideshow Logic
         let currentSlide = 0;
@@ -54,7 +52,13 @@
             slides[currentSlide].classList.add('active');
         }
 
-        setInterval(showNextSlide, 1500); // Verander de afbeelding elke 2 seconden
+        setInterval(showNextSlide, 1500);
+
+        // Redirect naar de homepagina en sla op in sessionStorage dat de intro is bekeken
+        setTimeout(() => {
+            sessionStorage.setItem('introViewed', true);
+            window.location.href = "/home";
+        }, 8500);
     </script>
 </body>
 </html>
