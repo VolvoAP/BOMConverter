@@ -167,6 +167,7 @@ def combine_dataframes_to_excel(dataframes, pdf_paths):
         if not df.empty:
             # Stel de naam van de sheet in op basis van de bestandsnaam
             sheet_name = os.path.splitext(os.path.basename(pdf_file.filename))[0][:31]
+            sheet_name = sheet_name.replace("volvo", "").strip()  # Verwijder volvo
             sheet_name = "".join(c for c in sheet_name if c.isalnum() or c.isspace())
 
             ws = workbook.create_sheet(title=sheet_name)
