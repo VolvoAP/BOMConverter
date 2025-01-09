@@ -1,16 +1,18 @@
 name: Keep App Alive
 
 on:
-  workflow_dispatch: # Handmatige trigger
+  workflow_dispatch:  # Handmatige trigger
   schedule:
-    - cron: "*/11 * * * *" # Automatische trigger elke 15 minuten
+    - cron: "*/11 * * * *"  # Automatische trigger elke 11 minuten
 
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Send ping to Render App
+      - name: Keep Render and Railway Apps Alive
         run: |
+          echo "Pinging Render App..."
           curl -s -o /dev/null https://bomconverter.onrender.com/home
+          echo "Pinging Railway App..."
           curl -s -o /dev/null https://volvo-tools.up.railway.app
