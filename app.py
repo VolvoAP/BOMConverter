@@ -14,7 +14,7 @@ ALLOWED_EXTENSIONS = {"pdf"}
 app.secret_key = "volvomanuel"
 
 # Stel de sessie in om permanent te zijn
-app.permanent_session_lifetime = timedelta(minutes=15)  # Sessie blijft 30 min
+app.permanent_session_lifetime = timedelta(minutes=15)  # Sessie blijft 15 min
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
