@@ -26,6 +26,26 @@ header h1 {
     font-size: 24px;
 }
 
+.example-image {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: auto;
+
+}
+
+.example-image img {
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.image-caption {
+    font-size: 14px;
+    color: #7b3e3e;
+    margin-top: 8px;
+    font-weight: bold;
+    font-style: italic;
+}
 /* Formulier styling */
 form {
     margin: 20px auto;
@@ -320,7 +340,6 @@ footer {
     animation-delay: 1.8s; /* Verschijnt pas na 3 seconden */
 }
 
-
 @keyframes spin {
     from {
         transform: rotate(0deg);
@@ -351,7 +370,6 @@ footer {
         opacity: 1;
     }
 }
-
 /* ✅ Media Query voor Mobiele Apparaten */
 @media (max-width: 768px) {
     .slideshow {
