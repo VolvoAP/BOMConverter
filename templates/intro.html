@@ -9,10 +9,23 @@
 <body>
     <!-- Introductie Inhoud -->
     <div id="intro" class="intro-container">
+        <!-- Slideshow Container -->
+        <div class="slideshow">
+            <!-- Volvo GIF als startafbeelding -->
+            <img src="{{ url_for('static', filename='volvo.gif') }}" alt="Volvo Intro" class="slide active">
+
+            <!-- Andere afbeeldingen -->
+            <img src="{{ url_for('static', filename='image1.jpg') }}" alt="Volvo Image 1" class="slide">
+            <img src="{{ url_for('static', filename='image2.jpg') }}" alt="Volvo Image 2" class="slide">
+            <img src="{{ url_for('static', filename='image3.jpg') }}" alt="Volvo Image 3" class="slide">
+            <img src="{{ url_for('static', filename='image4.jpg') }}" alt="Volvo Image 4" class="slide">
+        </div>
+
+        <!-- Welkomsttekst -->
         <h1 class="fade-in-slide">Welkom!</h1>
         <p class="fade-in-delayed-1">Even geduld<span id="dots">...</span></p>
-        <p class="fade-in-delayed">De applicaties worden opgestart.
-        <div class="loader"></div>
+        <p class="fade-in-delayed">De applicaties worden opgestart.</p>
+        <p class="loader"></p>
     </div>
 
     <!-- Automatische redirect naar home -->
@@ -24,12 +37,24 @@
         setInterval(() => {
             dots = (dots + 1) % 4; // Loop tussen 0 en 3
             dotsElement.textContent = '.'.repeat(dots);
-        }, 500); // Verander de snelheid hier (500 ms)
+        }, 400); // Verander de snelheid hier (400 ms)
 
-        // Redirect naar de homepagina na 5 seconden
+        // Redirect naar de homepagina na 8,5 seconden
         setTimeout(() => {
             window.location.href = "/home";
-        }, 5500);
+        }, 8500);
+
+        // Slideshow Logic
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+
+        function showNextSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+
+        setInterval(showNextSlide, 1500); // Verander de afbeelding elke 2 seconden
     </script>
 </body>
 </html>
