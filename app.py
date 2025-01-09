@@ -14,7 +14,7 @@ ALLOWED_EXTENSIONS = {"pdf"}
 app.secret_key = "volvomanuel"
 
 # Stel de sessie in om permanent te zijn
-app.permanent_session_lifetime = timedelta(minutes=1)  # Sessie blijft 1 min
+app.permanent_session_lifetime = timedelta(minutes=30)  # Sessie blijft 30 min
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
@@ -32,23 +32,22 @@ def allowed_file(filename):
 
 @app.before_request
 def require_intro():
-    # Blokkeer alle routes behalve de intro als de sessie niet is ingesteld
-    if 'intro_viewed' not in session and request.endpoint not in ['intro', 'static']:
-        return redirect(url_for('intro'))
+    if "intro_viewed" not in session and request.endpoint not in ["intro", "static"]:
+        return redirect(url_for("intro"))
 
 
 # Route voor de intro-pagina
-@app.route('/')
+@app.route("/")
 def intro():
-    session.permanent = True  # Sessie permanent maken
-    session['intro_viewed'] = True
-    return render_template('intro.html')
+    session.permanent = True
+    session["intro_viewed"] = True
+    return render_template("intro.html")
 
 
 # Route voor de homepagina
-@app.route('/home')
+@app.route("/home")
 def home():
-    return render_template('home.html')
+    return render_template("home.html")
 
 
 @app.route("/bom-converter")
