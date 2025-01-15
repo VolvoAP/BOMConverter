@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Copy to BOM{% endblock %}
+
+{% block content %}
+<header>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width: 100px;">
+    <h1>Automation to BOM</h1>
+</header>
+
+<form id="download-form">
+    <label for="variants">Kies hoeveel extra geheugen u wenst te installeren:</label><br>
+        <label for="variants"> </label><br>
+            <input type="checkbox" id="extract" name="extract" checked> 16GB<br><br>
+        <input type="checkbox" id="extract" name="extract" checked> 32GB<br><br>
+    <button type="button" onclick="startDownload()">Download EXTRA RAM</button>
+</form>
+
+<h2>Log:</h2>
+<pre id="log"></pre>
+
+<script>
+function startDownload() {
+    const extract = document.getElementById('extract').checked;
+
+    // Toon "Installing more RAM..." bericht
+    const logElement = document.getElementById('log');
+    logElement.innerText = 'Installing more RAM...';
+    
+    // Disable de knop
+    const button = document.querySelector('button');
+    button.disabled = true;
+
+    // Simuleer voortgangsindicator
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress++;
+        logElement.innerText += '.';
+
+        if (progress >= 20) {
+            clearInterval(progressInterval);
+            logElement.innerText += '\nRAM installation complete! You now have infinite memory.';
+            button.disabled = false;
+        }
+    }, 500);
+
+    // Optioneel: daadwerkelijke fetch-verzoek
+    fetch('/download', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ variants: variants, extract: extract })
+    })
+    .catch(error => {
+        clearInterval(progressInterval);
+        logElement.innerText = 'Fout: ' + error;
+        button.disabled = false;
+    });
+}
+</script>
+{% endblock %}
