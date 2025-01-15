@@ -18,12 +18,14 @@
 <h2>Log:</h2>
 <pre id="log"></pre>
 
+
+
 <script>
 function startDownload() {
     const variants = document.getElementById('variants').value;
     const extract = document.getElementById('extract').checked;
 
-    // Toon laadbericht
+    // Show loading message
     document.getElementById('log').innerText = 'Bezig met downloaden...';
     const button = document.querySelector('button');
     button.disabled = true;
@@ -35,13 +37,18 @@ function startDownload() {
         },
         body: JSON.stringify({ variants: variants, extract: extract })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         document.getElementById('log').innerText = data.log;
         button.disabled = false;
     })
     .catch(error => {
-        document.getElementById('log').innerText = 'Fout: ' + error;
+        document.getElementById('log').innerText = 'Fout: ' + error.message;
         button.disabled = false;
     });
 }
