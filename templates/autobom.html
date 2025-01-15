@@ -1,28 +1,50 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Copy to BOM{% endblock %}
 
 {% block content %}
-<div class="home-content">
-    <header>
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width: 100px;">
-        <h1>Welkom</h1>
-    </header>
-    <p>Kies een applicatie om te starten:</p>
-    <div class="app-grid">
-        <!-- Eerste knop: BOM Converter -->
-        <div class="app-card">
-            <h3>BOM Converter</h3>
-            <p>Converteer PDF-bestanden naar Excel-bestanden met de juiste BOM-structuur.</p>
-            <a href="/bom-converter" class="app-button">Start BOM Converter</a>
-        </div>
+<header>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width: 100px;">
+    <h1>Automation to BOM</h1>
+</header>
 
-        <!-- Tweede knop: Automation to BOM -->
-        <div class="app-card">
-            <h3>Coming Soon</h3>
-            <p>Automatiseren van kopiëren naar main BOM file.</p>
-            <a href="/autobom" class="app-button">Start Automation to BOM</a>
-        </div>
-    </div>
-</div>
+<form id="download-form">
+    <label for="variants">Voer de varianten in (één per regel):</label><br>
+    <textarea id="variants" name="variants" rows="10" cols="50"></textarea><br><br>
+    <input type="checkbox" id="extract" name="extract" checked> Automatisch ZIP-bestanden uitpakken<br><br>
+    <button type="button" onclick="startDownload()">Start Download</button>
+</form>
+
+<h2>Log:</h2>
+<pre id="log"></pre>
+
+<script>
+function startDownload() {
+    const variants = document.getElementById('variants').value;
+    const extract = document.getElementById('extract').checked;
+
+    // Toon laadbericht
+    document.getElementById('log').innerText = 'Bezig met downloaden...';
+    const button = document.querySelector('button');
+    button.disabled = true;
+
+    fetch('/download', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ variants: variants, extract: extract })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('log').innerText = data.log;
+        button.disabled = false;
+    })
+    .catch(error => {
+        document.getElementById('log').innerText = 'Fout: ' + error;
+        button.disabled = false;
+    });
+}
+
+</script>
 {% endblock %}
