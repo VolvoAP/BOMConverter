@@ -1,2 +1,3 @@
 web: gunicorn app:app
 web: python "ARO RIPPER HTML.py"
+web: python $APP_FILE
