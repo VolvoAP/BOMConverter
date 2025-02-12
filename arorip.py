@@ -17,7 +17,9 @@ username = "yaramis-m"
 password = "yara7643"
 
 # Opslaglocatie
-save_path = Path("c:/temp/AroDocOnline")
+#save_path = Path("c:/temp/AroDocOnline")
+save_path = Path("./AroDocOnline")
+
 os.makedirs(save_path, exist_ok=True)
 
 
