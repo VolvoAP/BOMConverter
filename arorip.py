@@ -116,7 +116,6 @@ def download_action():
 
 
 
-import os
 
 if __name__ == "__main__":
     # Voorkom dat Flask's development server draait in productie
