@@ -1,0 +1,1 @@
+web: gunicorn "ARO_RIPPER_HTML:app" --bind 0.0.0.0:$PORT --workers=2 --threads=4
