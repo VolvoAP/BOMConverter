@@ -118,7 +118,5 @@ def download_action():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))  # App 2 gebruikt poort 8090
-    app.run(host="0.0.0.0", port=port)
-
-    
+    port = int(os.environ.get("PORT", 5000))  # Railway gebruikt de dynamische poort
+    app.run(debug=False, host="0.0.0.0", port=port)
