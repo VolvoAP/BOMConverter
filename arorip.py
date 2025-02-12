@@ -118,7 +118,7 @@ def download_action():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8090))  # App 2 gebruikt poort 8090
+    port = int(os.environ.get("PORT", 8080))  # App 2 gebruikt poort 8090
     app.run(host="0.0.0.0", port=port)
 
     
