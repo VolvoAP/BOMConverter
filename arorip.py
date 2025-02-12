@@ -121,7 +121,7 @@ import os
 if __name__ == "__main__":
     # Voorkom dat Flask's development server draait in productie
     if os.environ.get("FLASK_ENV") != "production":
-        port = int(os.environ.get("PORT", 8080))  # Gebruik de dynamische poort voor Railway
+        port = int(os.environ.get("PORT", 8090))  # Gebruik de dynamische poort voor Railway
         app.run(host="0.0.0.0", port=port, debug=True)
 
     
