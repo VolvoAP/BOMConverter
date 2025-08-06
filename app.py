@@ -6,19 +6,19 @@ from openpyxl.styles import PatternFill
 import pdfplumber
 import io
 from datetime import timedelta
-
-
+import base64  # Belangrijk om base64 te importeren
+from psf_dashboard import parse_excel, generate_plot
+import plotly.io as pio
 
 # Flask-configuratie
 app = Flask(__name__)
-
 
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"pdf"}
 app.secret_key = "volvomanuel"
 
 # Stel de sessie in om permanent te zijn
-app.permanent_session_lifetime = timedelta(hours=1)  # Sessie blijft  min
+app.permanent_session_lifetime = timedelta(hours=1)  # Sessie blijft 1 uur
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
@@ -27,7 +27,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Globale buffer voor het gegenereerde Excel-bestand
 output_buffer = None
-
+global_psf_data = {}
 
 def allowed_file(filename):
     """Controleer of het bestandstype toegestaan is."""
@@ -53,13 +53,8 @@ def intro():
 def home():
     return render_template("home.html")
     
-#Route voor PSF dashboard
-from psf_dashboard import parse_excel, generate_plot
-import plotly.io as pio
-
-global_psf_data = {}
-
-@app.route("/psf-dashboard", methods=["GET", "POST"])
+# Route voor PSF dashboard, zonder trailing slash problemen
+@app.route("/psf-dashboard", methods=["GET", "POST"], strict_slashes=False)
 def psf_dashboard():
     chart_html = None
     timers = []
@@ -88,7 +83,6 @@ def psf_dashboard():
             npts = df['NPTName'].dropna().unique()
 
     return render_template("psf.html", chart_html=chart_html, timers=timers, npts=npts)
-
 
 
 @app.route("/bom-converter")
@@ -144,7 +138,6 @@ def process_single_pdf(pdf_file):
     df = df.iloc[5:].reset_index(drop=True)
 
     # Rijen met de onderstaande woord niet overkopiëren
-
     df = df[
         ~df.apply(
             lambda row: row.astype(str).str.contains("COUNTER ELECTRODE").any(), axis=1
@@ -258,7 +251,3 @@ def download_file():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Railway gebruikt de dynamische poort
     app.run(debug=False, host="0.0.0.0", port=port)
-
-
-
-
