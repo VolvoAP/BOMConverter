@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% block title %}PSF Dashboard{% endblock %}
+
+{% block title %}PSF DASHBOARD{% endblock %}
 
 {% block content %}
 <header>
@@ -7,46 +8,45 @@
     <h1>PSF DASHBOARD</h1>
 </header>
 
-<p>Upload een Excel-bestand met lasgegevens om het dashboard te starten.</p>
+<p>Analyseer lasdata (SpotName, NPTName, TimerName) en detecteer afwijkingen met PSF-statistieken.</p>
 
-<form method="post" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data">
+    <label>Upload Excel bestand:</label><br>
     <input type="file" name="excel_file" accept=".xlsx" required><br><br>
 
-    <label>TimerName:</label>
+    <label>TimerName filter:</label><br>
     <select name="timer">
         <option value="">Alle</option>
         {% for t in timers %}
             <option value="{{ t }}">{{ t }}</option>
         {% endfor %}
-    </select>
+    </select><br><br>
 
-    <label>NPTName:</label>
+    <label>NPTName filter:</label><br>
     <select name="npt">
         <option value="">Alle</option>
         {% for n in npts %}
             <option value="{{ n }}">{{ n }}</option>
         {% endfor %}
-    </select>
+    </select><br><br>
 
-    <br><br>
-    <label><input type="checkbox" name="nok_only"> Alleen NOK</label>
-    <label><input type="checkbox" name="sigma_filter"> Alleen hoge sigma (>=2)</label>
+    <label><input type="checkbox" name="nok_only"> Alleen NOK tonen</label><br>
+    <label><input type="checkbox" name="sigma_filter"> Spots klaar voor tol. band aanpassing</label><br><br>
 
-    <br><br>
-    <label>Min lassen per spot:</label>
-    <input type="number" name="min_welds" min="0" value="0">
-    <label>Max lassen per spot:</label>
-    <input type="number" name="max_welds" min="1" value="9999">
+    <label>Minimaal aantal lassen:</label><br>
+    <input type="number" name="min_welds" value="0" min="0"><br><br>
 
-    <br><br>
-    <button type="submit">Genereer Dashboard</button>
+    <label>Maximaal aantal lassen:</label><br>
+    <input type="number" name="max_welds" value="9999" min="0"><br><br>
+
+    <button type="submit">Update grafiek</button>
 </form>
 
-<hr>
-
 {% if chart_html %}
-    <div>{{ chart_html | safe }}</div>
+<div style="margin-top: 30px;">
+    {{ chart_html|safe }}
+</div>
 {% endif %}
 
-<a href="{{ url_for('home') }}" class="button">Home</a>
+<a href="{{ url_for('home') }}" class="button" style="margin-top:40px; display:inline-block;">Home</a>
 {% endblock %}
