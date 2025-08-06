@@ -61,37 +61,6 @@ import plotly.io as pio
 
 global_psf_data = {}
 
-@app.route("/psf-dashboard", methods=["GET", "POST"])
-def psf_dashboard():
-    chart_html = None
-    timers = []
-    npts = []
-
-    if request.method == 'POST':
-        file = request.files.get('excel_file')
-        if file:
-            content = f"data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{base64.b64encode(file.read()).decode()}"
-            df = parse_excel(content)
-            global_psf_data['df'] = df
-
-        df = global_psf_data.get('df')
-        if df is not None:
-            timer = request.form.get('timer') or None
-            npt = request.form.get('npt') or None
-            nok_only = request.form.get('nok_only') == 'on'
-            sigma_filter = request.form.get('sigma_filter') == 'on'
-            min_welds = int(request.form.get('min_welds') or 0)
-            max_welds = int(request.form.get('max_welds') or 9999)
-
-            fig = generate_plot(df, timer, npt, min_welds, max_welds, nok_only, sigma_filter)
-            chart_html = pio.to_html(fig, full_html=False)
-
-            timers = df['TimerName'].dropna().unique()
-            npts = df['NPTName'].dropna().unique()
-
-    return render_template("psf.html", chart_html=chart_html, timers=timers, npts=npts)
-
-
 
 @app.route("/bom-converter")
 def index():
@@ -260,6 +229,7 @@ def download_file():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Railway gebruikt de dynamische poort
     app.run(debug=False, host="0.0.0.0", port=port)
+
 
 
 
