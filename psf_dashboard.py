@@ -4,15 +4,16 @@ import pandas as pd
 import plotly.express as px
 import base64
 import io
+from flask import Flask
 
-def create_dash_app(server):
-    app = dash.Dash(__name__, server=server, url_base_pathname='/psf-dashboard/')
+# Globale opslag
+global_df = pd.DataFrame()
 
-    global_df = pd.DataFrame()
+def init_psf_dashboard(server: Flask):
+    dash_app = dash.Dash(__name__, server=server, url_base_pathname='/psf-dashboard/')
 
-    app.layout = html.Div([
-        html.Img(src='/static/logo.png', style={"maxWidth": "100px", "display": "block", "margin": "0 auto"}),
-        html.H1("📊 PSF TOOL V216", style={"color": "black", "textAlign": "center"}),
+    dash_app.layout = html.Div([
+        html.H1("📊 PSF Dashboard - Volvo", style={"color": "#0078D4"}),
 
         dcc.Upload(
             id='upload-data',
@@ -46,32 +47,22 @@ def create_dash_app(server):
                 value=[]
             ),
 
-            html.Label('📊 Aantal lassen per spot (min & max):', style={"marginTop": 10}),
-            html.Div([
-                dcc.Input(
-                    id='min-welds-input',
-                    type='number',
-                    placeholder='Min',
-                    value=0,
-                    style={'width': '100px', 'marginRight': '10px'}
-                ),
-                dcc.Input(
-                    id='max-welds-input',
-                    type='number',
-                    placeholder='Max',
-                    value=9999,
-                    style={'width': '100px'}
-                )
-            ], style={'display': 'flex', 'alignItems': 'center', 'gap': '10px'}),
+            html.Label('📊 Minimaal aantal lassen per spot:', style={"marginTop": 10}),
+            dcc.Slider(
+                id='min-welds-slider',
+                min=0, max=100, step=5, value=0,
+                marks={i: str(i) for i in range(0, 105, 20)}
+            ),
 
-            html.Button("🔍 Toon spots klaar voor tol. band aanpassing (>= 20 welds)", id="sigma-button", n_clicks=0,
+            html.Button("🔍 Toon spots klaar voor tol. band aanpassing (>= 20 welds)",
+                        id="sigma-button", n_clicks=0,
                         style={"marginTop": 20, "backgroundColor": "#ffcc00", "fontWeight": "bold"})
         ], style={'marginBottom': 30}),
 
         dcc.Graph(id='bar-chart')
     ])
 
-    @app.callback(
+    @dash_app.callback(
         Output('file-info', 'children'),
         Output('timer-dropdown', 'options'),
         Output('npt-dropdown', 'options'),
@@ -81,7 +72,7 @@ def create_dash_app(server):
         State('upload-data', 'filename')
     )
     def load_file(contents, filename):
-        nonlocal global_df
+        global global_df
 
         if contents is None:
             return dash.no_update, [], [], None, None
@@ -107,16 +98,15 @@ def create_dash_app(server):
         except Exception as e:
             return html.Div(f"❌ Fout bij laden: {str(e)}"), [], [], None, None
 
-    @app.callback(
+    @dash_app.callback(
         Output('bar-chart', 'figure'),
         Input('timer-dropdown', 'value'),
         Input('npt-dropdown', 'value'),
         Input('nok-only', 'value'),
-        Input('min-welds-input', 'value'),
-        Input('max-welds-input', 'value'),
+        Input('min-welds-slider', 'value'),
         Input('sigma-button', 'n_clicks')
     )
-    def update_chart(selected_timer, selected_npt, nok_only, min_welds, max_welds, sigma_click):
+    def update_chart(selected_timer, selected_npt, nok_only, min_welds, sigma_click):
         df = global_df.copy()
 
         if df.empty or 'Tol=OK' not in df.columns:
@@ -138,9 +128,7 @@ def create_dash_app(server):
             stdev_psf=('STDEV_stabilisationFactor', 'mean')
         ).reset_index()
 
-        min_val = min_welds if min_welds is not None else 0
-        max_val = max_welds if max_welds is not None else float('inf')
-        grouped = grouped[(grouped['count'] >= min_val) & (grouped['count'] <= max_val)]
+        grouped = grouped[grouped['count'] >= min_welds]
 
         trigger = dash.callback_context.triggered[0]['prop_id'].split('.')[0]
         if trigger == 'sigma-button':
@@ -173,15 +161,12 @@ def create_dash_app(server):
         )
 
         fig.update_layout(
-            xaxis_tickangle=45,
-            xaxis_tickfont=dict(size=11),
+            xaxis_tickangle=0,
+            xaxis_tickfont=dict(size=12),
             yaxis_title='Aantal lassen',
-            height=900,
-            width=1400,
-            margin=dict(l=40, r=40, t=60, b=200),
+            height=800,
+            margin=dict(l=40, r=40, t=60, b=150),
             legend_title_text='Kwaliteit'
         )
 
         return fig
-
-    return app
