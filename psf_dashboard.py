@@ -4,24 +4,20 @@ import pandas as pd
 import plotly.express as px
 import base64
 import io
+from flask import Flask
 
-# Globale opslag voor dataframe
+# Globale opslag
 global_df = pd.DataFrame()
 
-def init_psf_dashboard(flask_app):
-    dash_app = dash.Dash(
-        __name__,
-        server=flask_app,
-        url_base_pathname="/psf-dashboard/",
-        suppress_callback_exceptions=True
-    )
+def init_psf_dashboard(server: Flask):
+    dash_app = dash.Dash(__name__, server=server, url_base_pathname='/psf-dashboard/')
 
     dash_app.layout = html.Div([
-        html.H1("\ud83d\udcca PSF Dashboard - Volvo", style={"color": "#0078D4"}),
+        html.H1("📊 PSF Dashboard - Volvo", style={"color": "#0078D4"}),
 
         dcc.Upload(
             id='upload-data',
-            children=html.Div(['\ud83d\udcc2 Sleep je Excel bestand hierheen of ', html.A('klik om te uploaden')]),
+            children=html.Div(['📂 Sleep je Excel bestand hierheen of ', html.A('klik om te uploaden')]),
             style={
                 'width': '100%',
                 'height': '60px',
@@ -44,21 +40,22 @@ def init_psf_dashboard(flask_app):
             html.Label('Filter op NPTName:', style={"marginTop": 10}),
             dcc.Dropdown(id='npt-dropdown', placeholder='Selecteer NPTName'),
 
-            html.Label('\ud83d\udd18 Toon alleen NOK:', style={"marginTop": 10}),
+            html.Label('🔘 Toon alleen NOK:', style={"marginTop": 10}),
             dcc.Checklist(
                 id='nok-only',
                 options=[{'label': 'Toon alleen NOK', 'value': 'nok'}],
                 value=[]
             ),
 
-            html.Label('\ud83d\udcca Minimaal aantal lassen per spot:', style={"marginTop": 10}),
+            html.Label('📊 Minimaal aantal lassen per spot:', style={"marginTop": 10}),
             dcc.Slider(
                 id='min-welds-slider',
                 min=0, max=100, step=5, value=0,
                 marks={i: str(i) for i in range(0, 105, 20)}
             ),
 
-            html.Button("\ud83d\udd0d Toon spots klaar voor tol. band aanpassing (>= 20 welds)", id="sigma-button", n_clicks=0,
+            html.Button("🔍 Toon spots klaar voor tol. band aanpassing (>= 20 welds)",
+                        id="sigma-button", n_clicks=0,
                         style={"marginTop": 20, "backgroundColor": "#ffcc00", "fontWeight": "bold"})
         ], style={'marginBottom': 30}),
 
@@ -96,10 +93,10 @@ def init_psf_dashboard(flask_app):
             timers = [{'label': t, 'value': t} for t in sorted(df['TimerName'].dropna().unique())]
             npts = [{'label': n, 'value': n} for n in sorted(df['NPTName'].dropna().unique())]
 
-            return html.Div(f"\u2705 Bestand geladen: {filename}"), timers, npts, None, None
+            return html.Div(f"✅ Bestand geladen: {filename}"), timers, npts, None, None
 
         except Exception as e:
-            return html.Div(f"\u274c Fout bij laden: {str(e)}"), [], [], None, None
+            return html.Div(f"❌ Fout bij laden: {str(e)}"), [], [], None, None
 
     @dash_app.callback(
         Output('bar-chart', 'figure'),
@@ -113,7 +110,7 @@ def init_psf_dashboard(flask_app):
         df = global_df.copy()
 
         if df.empty or 'Tol=OK' not in df.columns:
-            return px.bar(title="\u26a0\ufe0f Geen geldige data geladen")
+            return px.bar(title="⚠️ Geen geldige data geladen")
 
         if selected_timer:
             df = df[df['TimerName'] == selected_timer]
