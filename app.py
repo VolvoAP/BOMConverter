@@ -53,6 +53,11 @@ def intro():
 @app.route("/home")
 def home():
     return render_template("home.html")
+    
+#Route voor PSF dashboard
+@app.route("/psf-dashboard")
+def psf_html_wrapper():
+    return render_template("psf_dashboard.html")
 
 
 @app.route("/bom-converter")
@@ -222,5 +227,6 @@ def download_file():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Railway gebruikt de dynamische poort
     app.run(debug=False, host="0.0.0.0", port=port)
+
 
 
