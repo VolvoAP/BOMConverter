@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>PSF Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f4f4;
+        }
+        .upload-form, .filters, .results {
+            background: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .button {
+            background-color: #0078D4;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        select {
+            padding: 5px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📊 PSF Webdashboard</h1>
+
+    <div class="upload-form">
+        <form method="POST" enctype="multipart/form-data">
+            <p><strong>Upload Excel-bestand (.xlsx):</strong></p>
+            <input type="file" name="file" accept=".xlsx" required><br><br>
+
+            {% if timers %}
+            <div class="filters">
+                <label>Filter op TimerName:</label>
+                <select name="timer">
+                    <option value="">-- Alles --</option>
+                    {% for timer in timers %}
+                        <option value="{{ timer }}" {% if selected_timer == timer %}selected{% endif %}>{{ timer }}</option>
+                    {% endfor %}
+                </select>
+
+                <label>Filter op NPTName:</label>
+                <select name="npt">
+                    <option value="">-- Alles --</option>
+                    {% for npt in npts %}
+                        <option value="{{ npt }}" {% if selected_npt == npt %}selected{% endif %}>{{ npt }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            <br>
+            <button type="submit" class="button">Uploaden & Visualiseren</button>
+        </form>
+    </div>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    {% if raw_columns %}
+        <div class="results">
+            <p><strong>📋 Gelezen kolommen:</strong></p>
+            <ul>
+                {% for col in raw_columns %}
+                    <li>{{ col }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if charts %}
+        <div class="results">
+            <h2>📈 Resultaten</h2>
+            {{ charts|safe }}
+        </div>
+    {% endif %}
+
+</body>
+</html>
