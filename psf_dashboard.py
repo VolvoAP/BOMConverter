@@ -1,5 +1,3 @@
-# psf_dashboard.py
-
 import pandas as pd
 import plotly.express as px
 import base64
@@ -30,6 +28,10 @@ def generate_plot(df, timer=None, npt=None, min_welds=0, max_welds=9999, nok_onl
     if nok_only:
         df = df[df['Tol=OK'].str.lower() == 'nok']
 
+    df = df[df['cnt_welds_lastShift'].notna()]
+    df = df[df['AVG_PSF_last_shift'].notna()]
+    df = df[df['STDEV_stabilisationFactor'].notna()]
+
     df['SpotName'] = df['SpotName'].astype(str)
 
     grouped = df.groupby(['SpotName', 'Tol=OK']).agg(
@@ -42,6 +44,11 @@ def generate_plot(df, timer=None, npt=None, min_welds=0, max_welds=9999, nok_onl
 
     if sigma_filter:
         grouped = grouped[(grouped['stdev_psf'] > 2) & (grouped['count'] >= 20)]
+
+    if grouped.empty:
+        return px.bar(title="⚠️ Geen resultaten met de huidige filters")
+
+    grouped = grouped.sort_values(by="count", ascending=False)
 
     fig = px.bar(
         grouped,
@@ -66,11 +73,11 @@ def generate_plot(df, timer=None, npt=None, min_welds=0, max_welds=9999, nok_onl
     fig.update_traces(textposition='outside', textfont_size=12, cliponaxis=False)
 
     fig.update_layout(
-        xaxis_tickangle=0,
-        xaxis_tickfont=dict(size=10),
+        xaxis_tickangle=45,
+        xaxis_tickfont=dict(size=9),
         yaxis_title='Aantal lassen',
         height=900,
-        margin=dict(l=40, r=40, t=60, b=200),
+        margin=dict(l=40, r=40, t=60, b=250),
         legend_title_text='Kwaliteit'
     )
 
