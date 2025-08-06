@@ -1,52 +1,207 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8" />
+    <title>PSF DASHBOARD</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #0078D4; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; }
+        select, input[type=number], input[type=file] { padding: 6px; width: 250px; }
+        button { background-color: #0078D4; color: white; border: none; padding: 10px 20px; cursor: pointer; }
+        button:hover { background-color: #005a9e; }
+        #chart { margin-top: 40px; }
+    </style>
+</head>
+<body>
 
-{% block title %}PSF DASHBOARD{% endblock %}
+<h1>PSF DASHBOARD</h1>
 
-{% block content %}
-<header>
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width: 100px;">
-    <h1>PSF DASHBOARD</h1>
-</header>
+<p>Upload een Excel-bestand (.xlsx) en analyseer lasdata (SpotName, NPTName, TimerName) en detecteer afwijkingen.</p>
 
-<p>Analyseer lasdata (SpotName, NPTName, TimerName) en detecteer afwijkingen met PSF-statistieken.</p>
+<form id="upload-form">
+    <div class="input-group">
+        <label for="excel-file">Upload Excel bestand:</label>
+        <input type="file" id="excel-file" accept=".xlsx" required />
+    </div>
 
-<form method="POST" enctype="multipart/form-data">
-    <label>Upload Excel bestand:</label><br>
-    <input type="file" name="excel_file" accept=".xlsx" required><br><br>
+    <div class="input-group">
+        <label for="timer-filter">TimerName filter:</label>
+        <select id="timer-filter"><option value="">Alle</option></select>
+    </div>
 
-    <label>TimerName filter:</label><br>
-    <select name="timer">
-        <option value="">Alle</option>
-        {% for t in timers %}
-            <option value="{{ t }}">{{ t }}</option>
-        {% endfor %}
-    </select><br><br>
+    <div class="input-group">
+        <label for="npt-filter">NPTName filter:</label>
+        <select id="npt-filter"><option value="">Alle</option></select>
+    </div>
 
-    <label>NPTName filter:</label><br>
-    <select name="npt">
-        <option value="">Alle</option>
-        {% for n in npts %}
-            <option value="{{ n }}">{{ n }}</option>
-        {% endfor %}
-    </select><br><br>
+    <div class="input-group">
+        <label><input type="checkbox" id="nok-only" /> Alleen NOK tonen</label>
+    </div>
 
-    <label><input type="checkbox" name="nok_only"> Alleen NOK tonen</label><br>
-    <label><input type="checkbox" name="sigma_filter"> Spots klaar voor tol. band aanpassing</label><br><br>
+    <div class="input-group">
+        <label>Minimaal aantal lassen:</label>
+        <input type="number" id="min-welds" value="0" min="0" />
+    </div>
 
-    <label>Minimaal aantal lassen:</label><br>
-    <input type="number" name="min_welds" value="0" min="0"><br><br>
+    <div class="input-group">
+        <label>Maximaal aantal lassen:</label>
+        <input type="number" id="max-welds" value="9999" min="0" />
+    </div>
 
-    <label>Maximaal aantal lassen:</label><br>
-    <input type="number" name="max_welds" value="9999" min="0"><br><br>
-
-    <button type="submit">Update grafiek</button>
+    <button type="button" id="update-chart">Update grafiek</button>
 </form>
 
-{% if chart_html %}
-<div style="margin-top: 30px;">
-    {{ chart_html|safe }}
-</div>
-{% endif %}
+<div id="chart"></div>
 
-<a href="{{ url_for('home') }}" class="button" style="margin-top:40px; display:inline-block;">Home</a>
-{% endblock %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+    let rawData = null;
+
+    const fileInput = document.getElementById('excel-file');
+    const timerFilter = document.getElementById('timer-filter');
+    const nptFilter = document.getElementById('npt-filter');
+    const nokOnlyCheckbox = document.getElementById('nok-only');
+    const minWeldsInput = document.getElementById('min-welds');
+    const maxWeldsInput = document.getElementById('max-welds');
+    const updateBtn = document.getElementById('update-chart');
+    const chartDiv = document.getElementById('chart');
+
+    function populateFilters(data) {
+        // Unieke TimerName en NPTName uit data halen
+        const timers = [...new Set(data.map(r => r.TimerName).filter(v => v))].sort();
+        const npts = [...new Set(data.map(r => r.NPTName).filter(v => v))].sort();
+
+        timerFilter.innerHTML = '<option value="">Alle</option>';
+        nptFilter.innerHTML = '<option value="">Alle</option>';
+
+        timers.forEach(t => {
+            const option = document.createElement('option');
+            option.value = t;
+            option.textContent = t;
+            timerFilter.appendChild(option);
+        });
+
+        npts.forEach(n => {
+            const option = document.createElement('option');
+            option.value = n;
+            option.textContent = n;
+            nptFilter.appendChild(option);
+        });
+    }
+
+    function filterData(data) {
+        const timer = timerFilter.value;
+        const npt = nptFilter.value;
+        const nokOnly = nokOnlyCheckbox.checked;
+        const minWelds = parseInt(minWeldsInput.value) || 0;
+        const maxWelds = parseInt(maxWeldsInput.value) || Infinity;
+
+        return data.filter(row => {
+            if (timer && row.TimerName !== timer) return false;
+            if (npt && row.NPTName !== npt) return false;
+            if (nokOnly && row['Tol=OK'].toLowerCase() !== 'nok') return false;
+            if (!row.cnt_welds_lastShift || row.cnt_welds_lastShift < minWelds) return false;
+            if (row.cnt_welds_lastShift > maxWelds) return false;
+            return true;
+        });
+    }
+
+    function groupData(data) {
+        // Groepeer op SpotName en Tol=OK
+        const grouped = {};
+        data.forEach(row => {
+            const key = row.SpotName + '||' + row['Tol=OK'];
+            if (!grouped[key]) {
+                grouped[key] = { SpotName: row.SpotName, TolOK: row['Tol=OK'], count: 0 };
+            }
+            grouped[key].count += row.cnt_welds_lastShift || 0;
+        });
+        return Object.values(grouped);
+    }
+
+    function drawChart(data) {
+        if (!data.length) {
+            chartDiv.innerHTML = '<p>⚠️ Geen geldige data om te tonen</p>';
+            return;
+        }
+
+        const okData = data.filter(d => d.TolOK.toLowerCase() === 'ok');
+        const nokData = data.filter(d => d.TolOK.toLowerCase() === 'nok');
+
+        const traceOk = {
+            x: okData.map(d => d.SpotName),
+            y: okData.map(d => d.count),
+            name: 'OK',
+            type: 'bar',
+            marker: { color: 'green' },
+            text: okData.map(d => d.count),
+            textposition: 'outside'
+        };
+        const traceNok = {
+            x: nokData.map(d => d.SpotName),
+            y: nokData.map(d => d.count),
+            name: 'NOK',
+            type: 'bar',
+            marker: { color: 'red' },
+            text: nokData.map(d => d.count),
+            textposition: 'outside'
+        };
+
+        const layout = {
+            barmode: 'stack',
+            title: 'Aantal lassen per SpotName (OK/NOK)',
+            xaxis: { tickangle: 45 },
+            yaxis: { title: 'Aantal lassen' },
+            margin: { t: 50, b: 150 }
+        };
+
+        Plotly.newPlot(chartDiv, [traceOk, traceNok], layout, {responsive: true});
+    }
+
+    function processFile(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+
+            const sheetName = 'Query1';
+            if (!workbook.Sheets[sheetName]) {
+                alert('Sheet "Query1" niet gevonden in Excel bestand.');
+                return;
+            }
+
+            const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {defval: ''});
+            // Zet numerieke waarden om waar nodig
+            jsonData.forEach(row => {
+                row.cnt_welds_lastShift = Number(row.cnt_welds_lastShift) || 0;
+            });
+
+            rawData = jsonData;
+            populateFilters(rawData);
+            drawChart(groupData(rawData));
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            processFile(e.target.files[0]);
+        }
+    });
+
+    updateBtn.addEventListener('click', () => {
+        if (!rawData) {
+            alert('Upload eerst een Excel bestand.');
+            return;
+        }
+        const filtered = filterData(rawData);
+        const grouped = groupData(filtered);
+        drawChart(grouped);
+    });
+</script>
+
+</body>
+</html>
