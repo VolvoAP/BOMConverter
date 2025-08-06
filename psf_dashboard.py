@@ -1,143 +1,33 @@
-from flask import Flask, send_from_directory
-import dash
-from dash import html, dcc, Input, Output, State
+# psf_dashboard.py
+
 import pandas as pd
 import plotly.express as px
 import base64
 import io
 
-# Flask server aanmaken en static folder serveren
-server = Flask(__name__)
-
-@server.route('/static/<path:path>')
-def send_static(path):
-    return send_from_directory('static', path)
-
-# Dash app aanmaken met de Flask server
-app = dash.Dash(__name__, server=server)
-
-global_df = pd.DataFrame()
-
-app.layout = html.Div([
-    html.Img(src='/static/logo.png', style={"maxWidth": "100px"}),
-    html.H1("📊 PSF Dashboard - Volvo", style={"color": "#0078D4"}),
-
-    dcc.Upload(
-        id='upload-data',
-        children=html.Div(['📂 Sleep je Excel bestand hierheen of ', html.A('klik om te uploaden')]),
-        style={
-            'width': '100%',
-            'height': '60px',
-            'lineHeight': '60px',
-            'borderWidth': '1px',
-            'borderStyle': 'dashed',
-            'borderRadius': '5px',
-            'textAlign': 'center',
-            'margin': '10px 0'
-        },
-        multiple=False
-    ),
-
-    html.Div(id='file-info'),
-
-    html.Div([
-        html.Label('Filter op TimerName:'),
-        dcc.Dropdown(id='timer-dropdown', placeholder='Selecteer TimerName'),
-
-        html.Label('Filter op NPTName:', style={"marginTop": 10}),
-        dcc.Dropdown(id='npt-dropdown', placeholder='Selecteer NPTName'),
-
-        html.Label('🔘 Toon alleen NOK:', style={"marginTop": 10}),
-        dcc.Checklist(
-            id='nok-only',
-            options=[{'label': 'Toon alleen NOK', 'value': 'nok'}],
-            value=[]
-        ),
-
-        html.Label('📊 Aantal lassen per spot (min & max):', style={"marginTop": 10}),
-        html.Div([
-            dcc.Input(
-                id='min-welds-input',
-                type='number',
-                placeholder='Min',
-                value=0,
-                style={'width': '100px', 'marginRight': '10px'}
-            ),
-            dcc.Input(
-                id='max-welds-input',
-                type='number',
-                placeholder='Max',
-                value=9999,
-                style={'width': '100px'}
-            )
-        ], style={'display': 'flex', 'alignItems': 'center', 'gap': '10px'}),
-
-        html.Button("🔍 Toon spots klaar voor tol. band aanpassing (>= 20 welds)", id="sigma-button", n_clicks=0,
-                    style={"marginTop": 20, "backgroundColor": "#ffcc00", "fontWeight": "bold"})
-    ], style={'marginBottom': 30}),
-
-    dcc.Graph(id='bar-chart')
-])
-
-
-@app.callback(
-    Output('file-info', 'children'),
-    Output('timer-dropdown', 'options'),
-    Output('npt-dropdown', 'options'),
-    Output('timer-dropdown', 'value'),
-    Output('npt-dropdown', 'value'),
-    Input('upload-data', 'contents'),
-    State('upload-data', 'filename')
-)
-def load_file(contents, filename):
-    global global_df
-
-    if contents is None:
-        return dash.no_update, [], [], None, None
-
+def parse_excel(contents):
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
+    df = pd.read_excel(io.BytesIO(decoded), sheet_name="Query1")
 
-    try:
-        df = pd.read_excel(io.BytesIO(decoded), sheet_name="Query1")
-        df.columns = df.columns.astype(str).str.strip().str.replace(r"\s+", " ", regex=True).str.replace('\n', '', regex=True)
+    df.columns = df.columns.astype(str).str.strip().str.replace(r"\s+", " ", regex=True).str.replace('\n', '', regex=True)
 
-        df['cnt_welds_lastShift'] = pd.to_numeric(df['cnt_welds_lastShift'], errors='coerce')
-        df['AVG_PSF_last_shift'] = pd.to_numeric(df['AVG_PSF_last_shift'], errors='coerce')
-        df['STDEV_stabilisationFactor'] = pd.to_numeric(df['STDEV_stabilisationFactor'], errors='coerce')
+    df['cnt_welds_lastShift'] = pd.to_numeric(df['cnt_welds_lastShift'], errors='coerce')
+    df['AVG_PSF_last_shift'] = pd.to_numeric(df['AVG_PSF_last_shift'], errors='coerce')
+    df['STDEV_stabilisationFactor'] = pd.to_numeric(df['STDEV_stabilisationFactor'], errors='coerce')
 
-        global_df = df.copy()
-
-        timers = [{'label': t, 'value': t} for t in sorted(df['TimerName'].dropna().unique())]
-        npts = [{'label': n, 'value': n} for n in sorted(df['NPTName'].dropna().unique())]
-
-        return html.Div(f"✅ Bestand geladen: {filename}"), timers, npts, None, None
-
-    except Exception as e:
-        return html.Div(f"❌ Fout bij laden: {str(e)}"), [], [], None, None
+    return df
 
 
-@app.callback(
-    Output('bar-chart', 'figure'),
-    Input('timer-dropdown', 'value'),
-    Input('npt-dropdown', 'value'),
-    Input('nok-only', 'value'),
-    Input('min-welds-input', 'value'),
-    Input('max-welds-input', 'value'),
-    Input('sigma-button', 'n_clicks')
-)
-def update_chart(selected_timer, selected_npt, nok_only, min_welds, max_welds, sigma_click):
-    df = global_df.copy()
-
+def generate_plot(df, timer=None, npt=None, min_welds=0, max_welds=9999, nok_only=False, sigma_filter=False):
     if df.empty or 'Tol=OK' not in df.columns:
         return px.bar(title="⚠️ Geen geldige data geladen")
 
-    if selected_timer:
-        df = df[df['TimerName'] == selected_timer]
-    if selected_npt:
-        df = df[df['NPTName'] == selected_npt]
-
-    if 'nok' in nok_only:
+    if timer:
+        df = df[df['TimerName'] == timer]
+    if npt:
+        df = df[df['NPTName'] == npt]
+    if nok_only:
         df = df[df['Tol=OK'].str.lower() == 'nok']
 
     df['SpotName'] = df['SpotName'].astype(str)
@@ -148,13 +38,9 @@ def update_chart(selected_timer, selected_npt, nok_only, min_welds, max_welds, s
         stdev_psf=('STDEV_stabilisationFactor', 'mean')
     ).reset_index()
 
-    # Filter op aantal lassen tussen min en max
-    min_val = min_welds if min_welds is not None else 0
-    max_val = max_welds if max_welds is not None else float('inf')
-    grouped = grouped[(grouped['count'] >= min_val) & (grouped['count'] <= max_val)]
+    grouped = grouped[(grouped['count'] >= min_welds) & (grouped['count'] <= max_welds)]
 
-    trigger = dash.callback_context.triggered[0]['prop_id'].split('.')[0]
-    if trigger == 'sigma-button':
+    if sigma_filter:
         grouped = grouped[(grouped['stdev_psf'] > 2) & (grouped['count'] >= 20)]
 
     fig = px.bar(
@@ -177,24 +63,15 @@ def update_chart(selected_timer, selected_npt, nok_only, min_welds, max_welds, s
         }
     )
 
-    fig.update_traces(
-        textposition='outside',
-        textfont_size=14,
-        cliponaxis=False
-    )
+    fig.update_traces(textposition='outside', textfont_size=12, cliponaxis=False)
 
     fig.update_layout(
-        xaxis_tickangle=45,
-        xaxis_tickfont=dict(size=11),
+        xaxis_tickangle=0,
+        xaxis_tickfont=dict(size=10),
         yaxis_title='Aantal lassen',
         height=900,
-        width=1400,
         margin=dict(l=40, r=40, t=60, b=200),
         legend_title_text='Kwaliteit'
     )
 
     return fig
-
-
-if __name__ == '__main__':
-    app.run_server(debug=True)
