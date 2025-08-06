@@ -8,27 +8,28 @@
         <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width: 100px;">
         <h1>Welkom</h1>
     </header>
+
     <p>Kies een applicatie om te starten:</p>
 
     <div class="app-grid">
-        <!-- Eerste knop: BOM Converter -->
+        <!-- BOM Converter -->
         <div class="app-card">
             <h3>BOM Converter</h3>
             <p>Converteer PDF-bestanden naar Excel-bestanden met de juiste BOM-structuur.</p>
             <a href="/bom-converter" class="app-button">Start BOM Converter</a>
         </div>
 
-        <!-- Tweede knop: ARO VARIANT ZIP -->
+        <!-- ARO Variant Downloader -->
         <div class="app-card">
             <h3>ARO VARIANT ZIP</h3>
-            <p>Download robot variant ZIP file.</p>
+            <p>Download robot variant ZIP-bestanden voor ARO configuraties.</p>
             <a href="/autobom" class="app-button">DOWNLOAD ZIP'S</a>
         </div>
 
-        <!-- ✅ Derde knop: PSF Dashboard -->
+        <!-- ✅ PSF Dashboard (nieuw) -->
         <div class="app-card">
             <h3>PSF DASHBOARD</h3>
-            <p>Analyseer lasdata visueel, filter op Spot/Timer/NPT en detecteer afwijkingen.</p>
+            <p>Visualiseer lasgegevens, detecteer afwijkingen en filter op SpotName / Timer / NPT.</p>
             <a href="https://psf-dashboard.onrender.com" target="_blank" class="app-button">Open PSF Dashboard</a>
         </div>
     </div>
