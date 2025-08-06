@@ -19,10 +19,8 @@ app = dash.Dash(__name__, server=server)
 global_df = pd.DataFrame()
 
 app.layout = html.Div([
-    html.Div([
-        html.Img(src='/static/logo.png', style={"maxWidth": "100px", "display": "block", "margin": "0 auto"}),
-        html.H1("📊 PSF TOOL V216", style={"color": "black", "textAlign": "center"}),
-    ]),
+    html.Img(src='/static/logo.png', style={"maxWidth": "100px"}),
+    html.H1("📊 PSF Dashboard - Volvo", style={"color": "#0078D4"}),
 
     dcc.Upload(
         id='upload-data',
