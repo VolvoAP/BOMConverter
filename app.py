@@ -6,13 +6,14 @@ from openpyxl.styles import PatternFill
 import pdfplumber
 import io
 from datetime import timedelta
+from psf_dashboard import create_dash_app
 
 
 
 # Flask-configuratie
 app = Flask(__name__)
 
-
+dash_app = create_dash_app(app)
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"pdf"}
 app.secret_key = "volvomanuel"
@@ -258,6 +259,7 @@ def download_file():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Railway gebruikt de dynamische poort
     app.run(debug=False, host="0.0.0.0", port=port)
+
 
 
 
