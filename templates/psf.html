@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}PSF Dashboard{% endblock %}
+
+{% block content %}
+<header>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width: 100px;">
+    <h1>PSF DASHBOARD</h1>
+</header>
+
+<p>Upload een Excel-bestand met lasgegevens om het dashboard te starten.</p>
+
+<form method="post" enctype="multipart/form-data">
+    <input type="file" name="excel_file" accept=".xlsx" required><br><br>
+
+    <label>TimerName:</label>
+    <select name="timer">
+        <option value="">Alle</option>
+        {% for t in timers %}
+            <option value="{{ t }}">{{ t }}</option>
+        {% endfor %}
+    </select>
+
+    <label>NPTName:</label>
+    <select name="npt">
+        <option value="">Alle</option>
+        {% for n in npts %}
+            <option value="{{ n }}">{{ n }}</option>
+        {% endfor %}
+    </select>
+
+    <br><br>
+    <label><input type="checkbox" name="nok_only"> Alleen NOK</label>
+    <label><input type="checkbox" name="sigma_filter"> Alleen hoge sigma (>=2)</label>
+
+    <br><br>
+    <label>Min lassen per spot:</label>
+    <input type="number" name="min_welds" min="0" value="0">
+    <label>Max lassen per spot:</label>
+    <input type="number" name="max_welds" min="1" value="9999">
+
+    <br><br>
+    <button type="submit">Genereer Dashboard</button>
+</form>
+
+<hr>
+
+{% if chart_html %}
+    <div>{{ chart_html | safe }}</div>
+{% endif %}
+
+<a href="{{ url_for('home') }}" class="button">Home</a>
+{% endblock %}
