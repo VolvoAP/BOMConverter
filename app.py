@@ -6,15 +6,11 @@ from openpyxl.styles import PatternFill
 import pdfplumber
 import io
 from datetime import timedelta
-from psf_dashboard import create_dash_app
-import plotly.io as pio
-import base64
+
 
 
 # Flask-configuratie
 app = Flask(__name__)
-
-dash_app = create_dash_app(app)
 
 
 UPLOAD_FOLDER = "uploads"
@@ -57,6 +53,12 @@ def intro():
 def home():
     return render_template("home.html")
     
+#Route voor PSF dashboard
+from psf_dashboard import parse_excel, generate_plot
+import plotly.io as pio
+
+global_psf_data = {}
+
 @app.route("/psf-dashboard", methods=["GET", "POST"])
 def psf_dashboard():
     chart_html = None
@@ -86,6 +88,8 @@ def psf_dashboard():
             npts = df['NPTName'].dropna().unique()
 
     return render_template("psf.html", chart_html=chart_html, timers=timers, npts=npts)
+
+
 
 @app.route("/bom-converter")
 def index():
@@ -254,10 +258,6 @@ def download_file():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Railway gebruikt de dynamische poort
     app.run(debug=False, host="0.0.0.0", port=port)
-
-
-
-
 
 
 
