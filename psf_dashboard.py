@@ -107,7 +107,6 @@ def create_dash_app(server):
         except Exception as e:
             return html.Div(f"❌ Fout bij laden: {str(e)}"), [], [], None, None
 
-
     @app.callback(
         Output('bar-chart', 'figure'),
         Input('timer-dropdown', 'value'),
@@ -139,7 +138,6 @@ def create_dash_app(server):
             stdev_psf=('STDEV_stabilisationFactor', 'mean')
         ).reset_index()
 
-        # Filter op aantal lassen tussen min en max
         min_val = min_welds if min_welds is not None else 0
         max_val = max_welds if max_welds is not None else float('inf')
         grouped = grouped[(grouped['count'] >= min_val) & (grouped['count'] <= max_val)]
