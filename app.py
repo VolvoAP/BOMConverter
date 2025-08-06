@@ -6,11 +6,14 @@ from openpyxl.styles import PatternFill
 import pdfplumber
 import io
 from datetime import timedelta
+
+# ⬇️ Dash dashboard toevoegen
 from psf_dashboard import init_psf_dashboard
 
 # Flask-configuratie
 app = Flask(__name__)
-init_psf_dashboard(app)
+init_psf_dashboard(app)  # ⬅️ Koppel PSF dashboard aan deze app
+
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"pdf"}
 app.secret_key = "volvomanuel"
@@ -219,4 +222,5 @@ def download_file():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Railway gebruikt de dynamische poort
     app.run(debug=False, host="0.0.0.0", port=port)
+
 
