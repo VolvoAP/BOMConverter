@@ -62,7 +62,7 @@ app.layout = html.Div([
 
         dcc.Checklist(
             id='adaptief-checkbox',
-            options=[{'label': '✅ SPOTS IN ADAPTIEF ✅', 'value': 'adaptief'}],
+            options=[{'label': '✅ SPOTS IN/UIT ADAPTIEF ✅', 'value': 'adaptief'}],
             value=['adaptief'],
             inputStyle={"marginRight": "10px"},
             style={'textAlign': 'center', 'marginTop': '10px'}
@@ -268,4 +268,5 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
 
 if __name__ == '__main__':
     app.run_server(debug=False, host='0.0.0.0', port=8080)
+
 
