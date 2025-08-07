@@ -47,21 +47,25 @@ app.layout = html.Div([
 
     html.Div([
         html.Label('Filter op TimerName:', style={"fontWeight": "bold"}),
-        dcc.Dropdown(id='timer-dropdown', placeholder='Selecteer TimerName'),
+        dcc.Dropdown(id='timer-dropdown', placeholder='Selecteer TimerName', style={'margin': '0 auto', 'width': '50%'}),
 
         html.Label('Filter op NPTName:', style={"marginTop": 10, "fontWeight": "bold"}),
-        dcc.Dropdown(id='npt-dropdown', placeholder='Selecteer NPTName'),
+        dcc.Dropdown(id='npt-dropdown', placeholder='Selecteer NPTName', style={'margin': '0 auto', 'width': '50%'}),
 
         dcc.Checklist(
             id='nok-only',
             options=[{'label': ' ❌ Toon alleen NOK SPOTS ❌ ', 'value': 'nok'}],
-            value=[]
+            value=[],
+            inputStyle={"marginRight": "10px"},
+            style={'textAlign': 'center', 'marginTop': '10px'}
         ),
 
         dcc.Checklist(
             id='adaptief-checkbox',
             options=[{'label': '✅ SPOTS IN ADAPTIEF ✅', 'value': 'adaptief'}],
-            value=['adaptief']
+            value=['adaptief'],
+            inputStyle={"marginRight": "10px"},
+            style={'textAlign': 'center', 'marginTop': '10px'}
         ),
 
         html.Label(' 💥 Aantal lassen per spot (min & max) 💥:', style={"marginTop": 10}),
@@ -80,7 +84,7 @@ app.layout = html.Div([
                 value=9999,
                 style={'width': '100px'}
             )
-        ], style={'display': 'flex', 'alignItems': 'center', 'gap': '10px'}),
+        ], style={'display': 'flex', 'justifyContent': 'center', 'gap': '10px', 'marginTop': '5px'}),
 
         html.Label('  Gemiddelde PSF (min & max) :', style={"marginTop": 10}),
         html.Div([
@@ -98,13 +102,21 @@ app.layout = html.Div([
                 value=9999,
                 style={'width': '100px'}
             )
-        ], style={'display': 'flex', 'alignItems': 'center', 'gap': '10px'}),
+        ], style={'display': 'flex', 'justifyContent': 'center', 'gap': '10px', 'marginTop': '5px'}),
 
-        html.Button("🔍 Toon spots klaar voor tol. band aanpassing (>= 20 welds)", id="sigma-button", n_clicks=0,
-                    style={"marginTop": 20, "backgroundColor": "#ffcc00", "fontWeight": "bold"})
-    ], style={'marginBottom': 30}),
+        html.Button(
+            "🔍 Toon spots klaar voor tol. band aanpassing (>= 20 welds)",
+            id="sigma-button",
+            n_clicks=0,
+            style={"marginTop": 20, "backgroundColor": "#ffcc00", "fontWeight": "bold", "display": "block", "marginLeft": "auto", "marginRight": "auto"}
+        )
+    ], style={'textAlign': 'center', 'marginBottom': 30}),
 
-    dcc.Graph(id='bar-chart')
+    # Grafiek in div die centreert
+    html.Div(
+        dcc.Graph(id='bar-chart'),
+        style={'display': 'flex', 'justifyContent': 'center'}
+    )
 ])
 
 
@@ -141,8 +153,7 @@ def load_file(contents, filename):
         timers = [{'label': t, 'value': t} for t in sorted(df['TimerName'].dropna().unique())]
         npts = [{'label': n, 'value': n} for n in sorted(df['NPTName'].dropna().unique())]
 
-        return html.Div(f"✅ Bestand geladen: {filename}", style={"fontWeight": "bold", "color": "blue"}), timers, npts, None, None
-
+        return html.Div(f"✅ Bestand geladen: {filename}", style={"fontWeight": "bold", "color": "blue", "textAlign": "Center"}), timers, npts, None, None
 
     except Exception as e:
         return html.Div(f"❌ Fout bij laden: {str(e)}"), [], [], None, None
@@ -208,10 +219,9 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
     trigger = dash.callback_context.triggered[0]['prop_id'].split('.')[0]
     if trigger == 'sigma-button':
         grouped = grouped[
-            (grouped['adjusted_psf'] > 80) & # aangepaste PSF filter
-            (grouped['count'] >= 20) &      # minimum aantal lassen
-          #  (grouped['count'] <= 80) &      # maximum aantal lassen
-            (grouped['kwaliteit'] == 'nok') # kwaliteit
+            (grouped['adjusted_psf'] > 80) &  # aangepaste PSF filter
+            (grouped['count'] >= 20) &       # minimum aantal lassen
+            (grouped['kwaliteit'] == 'nok')  # kwaliteit
         ]
 
     fig = px.bar(
@@ -243,12 +253,12 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
     )
 
     fig.update_layout(
-        font=dict(family="Arial, sans-serif", size=12, color="black"),
+        font=dict(family="Arial, sans-serif", size=15, color="black"),
         xaxis_tickangle=45,
         xaxis_tickfont=dict(size=11),
         yaxis_title='Aantal lassen',
         height=900,
-        width=1400,
+        width=1900,
         margin=dict(l=40, r=40, t=60, b=200),
         legend_title_text='Tol. Band geoptimaliseerd'
     )
@@ -258,16 +268,3 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
 
 if __name__ == '__main__':
     app.run_server(debug=False, host='0.0.0.0', port=8080)
-
-
-
-
-
-
-
-
-
-
-
-
-
