@@ -153,7 +153,7 @@ def load_file(contents, filename):
         timers = [{'label': t, 'value': t} for t in sorted(df['TimerName'].dropna().unique())]
         npts = [{'label': n, 'value': n} for n in sorted(df['NPTName'].dropna().unique())]
 
-        return html.Div(f"✅ Bestand geladen: {filename}", style={"fontWeight": "bold", "color": "blue", "textAlign": "Center"}), timers, npts, None, None
+        return html.Div(f"✅ Bestand geladen: {filename}", style={"fontWeight": "bold", "color": "green", "textAlign": "Center"}), timers, npts, None, None
 
     except Exception as e:
         return html.Div(f"❌ Fout bij laden: {str(e)}"), [], [], None, None
@@ -268,3 +268,4 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
 
 if __name__ == '__main__':
     app.run_server(debug=False, host='0.0.0.0', port=8080)
+
