@@ -15,7 +15,7 @@ RUN pip install --upgrade pip && \
 COPY . .
 
 # Exposeer poort 8050 (Dash default)
-EXPOSE 8050
+EXPOSE 8080
 
 # Command om app te starten
 CMD ["gunicorn", "psf_dashboard:server", "--bind", "0.0.0.0:8050", "--workers", "1"]
