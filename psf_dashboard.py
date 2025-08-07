@@ -200,16 +200,18 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
     max_psf_val = max_psf if max_psf is not None else float('inf')
     grouped = grouped[(grouped['avg_psf'] >= min_psf_val) & (grouped['avg_psf'] <= max_psf_val)]
 
-# Aanpassen data voor TOL optimalisatie
+    # Bereken de aangepaste PSF voor sigma-button filter
+    grouped['adjusted_psf'] = grouped['avg_psf'] - 6 * grouped['stdev_psf']
+
+    # Aanpassen data voor TOL optimalisatie
     trigger = dash.callback_context.triggered[0]['prop_id'].split('.')[0]
     if trigger == 'sigma-button':
         grouped = grouped[
-            (grouped['stdev_psf'] < 1.5) & #stabiliteit
-            (grouped['count'] >= 30) & #minimum aantal lassen
-            (grouped['count'] <= 80) & #maximum aantal lassen
-            (grouped['avg_psf'] >= 85) & #psf waarde
-            (grouped['kwaliteit'] == 'nok') #kwaliteit
-            ]
+            (grouped['adjusted_psf'] > 80) & # aangepaste PSF filter
+            (grouped['count'] >= 20) &      # minimum aantal lassen
+          #  (grouped['count'] <= 80) &      # maximum aantal lassen
+            (grouped['kwaliteit'] == 'nok') # kwaliteit
+        ]
 
     fig = px.bar(
         grouped,
@@ -255,6 +257,7 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
 
 if __name__ == '__main__':
     app.run_server(debug=False, host='0.0.0.0', port=8080)
+
 
 
 
