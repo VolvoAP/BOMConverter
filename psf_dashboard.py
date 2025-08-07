@@ -239,23 +239,23 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
         cliponaxis=False
     )
 
-fig.update_layout(
-    font=dict(family="Arial, sans-serif", size=12, color="black"),
-    xaxis_tickangle=45,
-    xaxis_tickfont=dict(size=11),
-    yaxis_title='Aantal lassen',
-    height=900,
-    width=1400,
-    margin=dict(l=40, r=40, t=60, b=200),
-    legend_title_text='Tol. Band geoptimaliseerd'
+    fig.update_layout(
+        font=dict(family="Arial, sans-serif", size=12, color="black"),
+        xaxis_tickangle=45,
+        xaxis_tickfont=dict(size=11),
+        yaxis_title='Aantal lassen',
+        height=900,
+        width=1400,
+        margin=dict(l=40, r=40, t=60, b=200),
+        legend_title_text='Tol. Band geoptimaliseerd'
     )
-
 
     return fig
 
 
 if __name__ == '__main__':
     app.run_server(debug=False, host='0.0.0.0', port=8080)
+
 
 
 
