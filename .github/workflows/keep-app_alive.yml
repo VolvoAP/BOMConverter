@@ -10,15 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Keep Render and Railway Apps Alive
+      - name: Keep Volvo Tools Alive
         run: |
-          echo "Pinging Render App..."
+          echo "Pinging Volvo Tools Render App..."
           curl -s -o /dev/null https://volvo-tools.onrender.com/
 
-    steps:
-      - name: Keep Render and Railway Apps Alive
+      - name: Keep PSF Dashboard Alive
         run: |
-          echo "Pinging Render App..."
+          echo "Pinging PSF Dashboard Render App..."
           curl -s -o /dev/null https://psf-dashboard.onrender.com/
-
-
