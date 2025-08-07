@@ -68,7 +68,7 @@ app.layout = html.Div([
             style={'textAlign': 'center', 'marginTop': '10px'}
         ),
 
-        html.Label(' 💥 Aantal lassen per spot (min & max) 💥:', style={"marginTop": '10px'}),
+        html.Label(' 💥 Aantal lassen per spot (min & max) 💥:', style={"marginTop": 10}),
         html.Div([
             dcc.Input(
                 id='min-welds-input',
@@ -105,10 +105,10 @@ app.layout = html.Div([
         ], style={'display': 'flex', 'justifyContent': 'center', 'gap': '10px', 'marginTop': '5px'}),
 
         html.Button(
-            "🔍 Toon spots klaar voor tol. band aanpassing (min. 20 welds & min. 80% Stabiele PSF) 🔍",
+            "🔍 Toon spots klaar voor tol. band aanpassing (min. 20 welds & min. 80% Stabiele PSF) 🔍 ",
             id="sigma-button",
             n_clicks=0,
-            style={"marginTop": 20, "backgroundColor": "#ffcc00", "fontWeight": "bold", "display": "block", "marginLeft": "auto", "marginRight": "auto"}
+            style={"marginTop": 20, "backgroundColor": "#ffcc54", "fontWeight": "bold", "display": "block", "marginLeft": "auto", "marginRight": "auto"}
         )
     ], style={'textAlign': 'center', 'marginBottom': 30}),
 
@@ -255,7 +255,7 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
     fig.update_layout(
         font=dict(family="Arial, sans-serif", size=15, color="black"),
         xaxis_tickangle=45,
-        xaxis_tickfont=dict(size=11),
+        xaxis_tickfont=dict(size=16),
         yaxis_title='Aantal lassen',
         height=900,
         width=1900,
@@ -268,7 +268,3 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
 
 if __name__ == '__main__':
     app.run_server(debug=False, host='0.0.0.0', port=8080)
-
-
-
-
