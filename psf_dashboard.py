@@ -23,8 +23,8 @@ app.index_string = '''
     <head>
         {%metas%}
         <title>{%title%}</title>
-        <link rel="icon" href="/static/volvo.ico" type="image/x-icon" />
-        <link rel="shortcut icon" href="/static/volvo.ico" type="image/x-icon" />
+        <link rel="icon" href="/static/logo.png" type="image/png" />
+        <link rel="shortcut icon" href="/static/logo.png" type="image/png" />
         {%favicon%}
         {%css%}
     </head>
@@ -38,6 +38,7 @@ app.index_string = '''
     </body>
 </html>
 '''
+
 
 
 
@@ -284,6 +285,7 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
 
 if __name__ == '__main__':
     app.run_server(debug=False, host='0.0.0.0', port=8080)
+
 
 
 
