@@ -248,7 +248,7 @@ fig.update_layout(
     width=1400,
     margin=dict(l=40, r=40, t=60, b=200),
     legend_title_text='Tol. Band geoptimaliseerd'
-)
+    )
 
 
     return fig
@@ -256,5 +256,6 @@ fig.update_layout(
 
 if __name__ == '__main__':
     app.run_server(debug=False, host='0.0.0.0', port=8080)
+
 
 
