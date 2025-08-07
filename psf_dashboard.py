@@ -253,5 +253,5 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False, host='0.0.0.0', port=8050)
+    app.run_server(debug=False, host='0.0.0.0', port=8080)
 
