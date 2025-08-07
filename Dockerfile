@@ -18,4 +18,4 @@ COPY . .
 EXPOSE 8080
 
 # Command om app te starten
-CMD ["gunicorn", "psf_dashboard:server", "--bind", "0.0.0.0:8050", "--workers", "1"]
+CMD ["gunicorn", "psf_dashboard:server", "--bind", "0.0.0.0:8080", "--workers", "1"]
