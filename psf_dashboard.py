@@ -68,7 +68,7 @@ app.layout = html.Div([
             style={'textAlign': 'center', 'marginTop': '10px'}
         ),
 
-        html.Label(' 💥 Aantal lassen per spot (min & max) 💥:', style={"marginTop": 10}),
+        html.Label(' 💥 Aantal lassen per spot (min & max) 💥:', style={"marginTop": '10px'}),
         html.Div([
             dcc.Input(
                 id='min-welds-input',
@@ -268,5 +268,6 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
 
 if __name__ == '__main__':
     app.run_server(debug=False, host='0.0.0.0', port=8080)
+
 
 
