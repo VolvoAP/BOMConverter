@@ -14,8 +14,8 @@ def send_static(path):
     return send_from_directory('static', path)
 
 # Dash app aanmaken met de Flask server
-# Dash app aanmaken met de Flask server
 app = dash.Dash(__name__, server=server)
+app.title = "PSF TOOL V216"
 
 app.index_string = '''
 <!DOCTYPE html>
@@ -37,6 +37,8 @@ app.index_string = '''
     </body>
 </html>
 '''
+
+
 
 
 global_df = pd.DataFrame()
@@ -280,6 +282,7 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
 
 if __name__ == '__main__':
     app.run_server(debug=False, host='0.0.0.0', port=8080)
+
 
 
 
