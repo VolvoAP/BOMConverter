@@ -15,3 +15,10 @@ jobs:
           echo "Pinging Render App..."
           curl -s -o /dev/null https://volvo-tools.onrender.com/
 
+    steps:
+      - name: Keep Render and Railway Apps Alive
+        run: |
+          echo "Pinging Render App..."
+          curl -s -o /dev/null https://psf-dashboard.onrender.com/
+
+
