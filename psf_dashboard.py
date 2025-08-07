@@ -105,7 +105,7 @@ app.layout = html.Div([
         ], style={'display': 'flex', 'justifyContent': 'center', 'gap': '10px', 'marginTop': '5px'}),
 
         html.Button(
-            "🔍 Toon spots klaar voor tol. band aanpassing (>= 20 welds)",
+            "🔍 Toon spots klaar voor tol. band aanpassing (min. 20 welds & min. 80% Stabiele PSF) 🔍",
             id="sigma-button",
             n_clicks=0,
             style={"marginTop": 20, "backgroundColor": "#ffcc00", "fontWeight": "bold", "display": "block", "marginLeft": "auto", "marginRight": "auto"}
@@ -268,6 +268,7 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
 
 if __name__ == '__main__':
     app.run_server(debug=False, host='0.0.0.0', port=8080)
+
 
 
 
