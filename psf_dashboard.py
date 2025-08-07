@@ -16,6 +16,27 @@ def send_static(path):
 # Dash app aanmaken met de Flask server
 app = dash.Dash(__name__, server=server)
 
+app.index_string = '''
+<!DOCTYPE html>
+<html>
+    <head>
+        {%metas%}
+        <title>{%title%}</title>
+        <link rel="shortcut icon" href="/static/volvo.ico" type="image/x-icon">
+        {%favicon%}
+        {%css%}
+    </head>
+    <body>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+    </body>
+</html>
+'''
+
 global_df = pd.DataFrame()
 
 app.layout = html.Div([
@@ -257,6 +278,7 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
 
 if __name__ == '__main__':
     app.run_server(debug=False, host='0.0.0.0', port=8080)
+
 
 
 
