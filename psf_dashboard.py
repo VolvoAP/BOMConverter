@@ -254,7 +254,7 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
 
     fig.update_layout(
         font=dict(family="Arial, sans-serif", size=15, color="black"),
-        xaxis_tickangle=-90,
+        xaxis_tickangle=45,
         xaxis_tickfont=dict(size=16),
         yaxis_title='Aantal lassen',
         height=900,
@@ -268,4 +268,5 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
 
 if __name__ == '__main__':
     app.run_server(debug=False, host='0.0.0.0', port=8080)
+
 
