@@ -3,19 +3,16 @@ name: Keep App Alive
 on:
   workflow_dispatch:  # Handmatige trigger
   schedule:
-    - cron: "0 * * * *"  # Automatische trigger elke 60 minuten
+    - cron: "*/15 * * * *"  # Automatische trigger elke 15 minuten
 
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Keep Volvo Tools Alive
+      - name: Keep Render and Railway Apps Alive
         run: |
-          echo "Pinging Volvo Tools Render App..."
+          echo "Pinging Render App..."
           curl -s -o /dev/null https://volvo-tools.onrender.com/
-
-      - name: Keep PSF Dashboard Alive
-        run: |
-          echo "Pinging PSF Dashboard Render App..."
+          echo "Pinging PSF Dashboard..."
           curl -s -o /dev/null https://psf-dashboard.onrender.com/
