@@ -219,7 +219,7 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
     trigger = dash.callback_context.triggered[0]['prop_id'].split('.')[0]
     if trigger == 'sigma-button':
         grouped = grouped[
-            (grouped['adjusted_psf'] > 70) &  # aangepaste PSF filter
+            (grouped['adjusted_psf'] > 72) &  # aangepaste PSF filter
             (grouped['count'] >= 20) &       # minimum aantal lassen
             (grouped['kwaliteit'] == 'nok')  # kwaliteit
         ]
@@ -268,6 +268,7 @@ def update_chart(selected_timer, selected_npt, nok_only, adaptief_value, min_wel
 
 if __name__ == '__main__':
     app.run_server(debug=False, host='0.0.0.0', port=8080)
+
 
 
 
