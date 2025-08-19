@@ -31,4 +31,6 @@ RUN pip install --upgrade pip && \
 COPY . .
 
 EXPOSE 8080
-CMD gunicorn psf_dashboard:server -b 0.0.0.0:${PORT:-8080} -w 2 -k gthread --threads 8 --timeout 120
+# ..
+# Start je app met Gunicorn (psf_dashboard.py bevat 'server = Flask(__name__)')
+CMD gunicorn psf_dashboard:server -b 0.0.0.0:${PORT:-8080} -w 2 -k gthread --threads 8 --timeout 120 --access-logfile - --error-logfile -
