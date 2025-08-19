@@ -621,4 +621,6 @@ def export_xml(n_clicks, df_json, selected_timer, selected_npt, nok_only, adapti
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=8080)
+    port = int(os.environ.get("PORT", "8080"))
+    app.run(debug=False, host='0.0.0.0', port=port)
+
