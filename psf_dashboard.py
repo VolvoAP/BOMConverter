@@ -35,6 +35,15 @@ REQUIRED_COLUMNS = {
 # Flask server & static
 # ==============================
 server = Flask(__name__)
+@server.get("/healthz")
+def healthz():
+    return {"status": "ok"}, 200
+
+@server.get("/odbc")
+def odbc():
+    import pyodbc
+    return {"drivers": list(pyodbc.drivers())}, 200
+
 
 @server.route('/static/<path:path>')
 def send_static(path):
@@ -623,4 +632,5 @@ def export_xml(n_clicks, df_json, selected_timer, selected_npt, nok_only, adapti
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", "8080"))
     app.run(debug=False, host='0.0.0.0', port=port)
+
 
